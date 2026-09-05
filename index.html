@@ -152,6 +152,11 @@
                     o.type='sine';o.frequency.setValueAtTime(450,t);o.frequency.exponentialRampToValueAtTime(150,t+0.08);
                     g.gain.setValueAtTime(0.12,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.08);
                     o.connect(g);g.connect(ctx.destination);o.start();o.stop(t+0.08);
+                }else if(type==='hover'){
+                    const o=ctx.createOscillator(),g=ctx.createGain();
+                    o.type='triangle';o.frequency.setValueAtTime(600,t);o.frequency.exponentialRampToValueAtTime(800,t+0.04);
+                    g.gain.setValueAtTime(0.03,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.04);
+                    o.connect(g);g.connect(ctx.destination);o.start();o.stop(t+0.04);
                 }else if(type==='holdStart'){
                     const o=ctx.createOscillator(),g=ctx.createGain();
                     o.type='sine';o.frequency.setValueAtTime(220,t);o.frequency.linearRampToValueAtTime(330,t+0.15);
@@ -488,7 +493,10 @@
         renderLoop();
 
         document.querySelectorAll('.icon-link').forEach(l=>{
-            l.addEventListener('mouseenter',()=>document.body.classList.add('hovering'));
+            l.addEventListener('mouseenter',()=>{
+                document.body.classList.add('hovering');
+                playSound('hover');
+            });
             l.addEventListener('mouseleave',()=>document.body.classList.remove('hovering'));
         });
 

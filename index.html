@@ -61,12 +61,12 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            gap: 30px;
-            padding: 20px 0;
+            gap: 24px;
+            padding: 20px 16px;
             font-family: sans-serif;
             transition: background 1s ease;
             cursor: default;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
         #particleCanvas {
@@ -183,16 +183,17 @@
             flex-direction: row;
             justify-content: center;
             align-items: center;
-            gap: 34px;
+            gap: 24px;
             flex-wrap: wrap;
             background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
             border: 1px solid rgba(255, 255, 255, 0.06);
-            padding: 32px 48px;
+            padding: 28px 32px;
             border-radius: 28px;
             box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65);
             transition: transform 0.1s ease-out, filter 0.1s ease-out;
+            max-width: 100%;
         }
 
         .icon-link,
@@ -209,8 +210,8 @@
 
         .icon-wrapper {
             position: relative;
-            width: 210px;
-            height: 210px;
+            width: 160px;
+            height: 160px;
             filter: var(--icon-filter);
             transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
@@ -232,7 +233,7 @@
         }
 
         .icon-link:hover .icon-wrapper {
-            transform: scale(1.25);
+            transform: scale(1.15);
         }
 
         .icon-link:hover .icon-default {
@@ -243,7 +244,7 @@
             display: block;
         }
 
-        /* Battery Widget unter der Symbolbox */
+        /* Battery Widget */
         .battery-widget {
             position: relative;
             z-index: 2;
@@ -295,6 +296,22 @@
         .battery-widget.charging .battery-level-fill {
             background: #4ade80;
             box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+        }
+
+        /* Mobile Anpassungen */
+        @media (max-width: 768px) {
+            .links-container {
+                flex-direction: column;
+                gap: 20px;
+                padding: 24px 20px;
+                width: 85%;
+                max-width: 280px;
+            }
+
+            .icon-wrapper {
+                width: 90px;
+                height: 90px;
+            }
         }
 
         @media (hover: none) and (pointer: coarse) {
@@ -666,7 +683,6 @@
         bodyEl.style.backgroundSize = "500% 500%";
         bodyEl.style.animation = randomPreset.animation;
 
-        // Terminal / Clock Tab Animation
         let showCursor = true;
         let isTypingDone = false;
         let charIndex = 0;
@@ -701,7 +717,6 @@
             }
         }, 1000);
 
-        // Battery API Detection & Widget Update
         if ('getBattery' in navigator) {
             navigator.getBattery().then(battery => {
                 const widget = document.getElementById('batteryWidget');
@@ -711,7 +726,7 @@
                 function updateBatteryUI() {
                     const level = Math.round(battery.level * 100);
                     fill.style.width = level + '%';
-                    text.textContent = level + '%';
+                    text.textContext = level + '%';
 
                     if (battery.charging) {
                         widget.classList.add('charging');
@@ -719,7 +734,6 @@
                         widget.classList.remove('charging');
                     }
 
-                    // Widget nur anzeigen, wenn Battery API Werte liefert
                     widget.style.display = 'flex';
                 }
 
@@ -727,9 +741,7 @@
 
                 battery.addEventListener('levelchange', updateBatteryUI);
                 battery.addEventListener('chargingchange', updateBatteryUI);
-            }).catch(() => {
-                // Keine Batterie verfügbar oder blockiert (z.B. Desktop-PC) -> Widget bleibt versteckt
-            });
+            }).catch(() => {});
         }
     </script>
 

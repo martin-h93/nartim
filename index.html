@@ -539,6 +539,27 @@
             } catch (error) {}
         }
 
+        function playAllCapturedSound() {
+            try {
+                const ctx = getAudioContext();
+                const currentTime = ctx.currentTime;
+                const arpeggio = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
+                arpeggio.forEach((freq, index) => {
+                    const oscillator = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+                    oscillator.type = 'sawtooth';
+                    oscillator.frequency.setValueAtTime(freq, currentTime + index * 0.04);
+                    gainNode.gain.setValueAtTime(0.001, currentTime + index * 0.04);
+                    gainNode.gain.linearRampToValueAtTime(0.12, currentTime + index * 0.04 + 0.01);
+                    gainNode.gain.exponentialRampToValueAtTime(0.0001, currentTime + index * 0.04 + 0.35);
+                    oscillator.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+                    oscillator.start(currentTime + index * 0.04);
+                    oscillator.stop(currentTime + index * 0.04 + 0.35);
+                });
+            } catch (error) {}
+        }
+
         function playKonamiStandardSound() {
             try {
                 const ctx = getAudioContext();
@@ -842,7 +863,11 @@
                     }
                 });
                 if (capturedCount > 0) {
-                    playLongReleaseSound();
+                    if (capturedCount >= particleCollection.length) {
+                        playAllCapturedSound();
+                    } else {
+                        playLongReleaseSound();
+                    }
                 }
             }
             document.body.classList.remove('is-holding');
@@ -880,7 +905,6 @@
                         }, 5000);
                     } else {
                         playKonamiStandardSound();
-                        document.body.classList.remove('bit-8-mode');
                         triggerZeldaHearts(false);
                     }
                     konamiIndex = 0;

@@ -23,33 +23,24 @@
         html,body{width:100%;min-height:100vh;min-height:100dvh;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;}
         body{background-size:500% 500%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:20px;padding:40px 16px;font-family:sans-serif;transition:background 1s ease,filter 2s ease;cursor:default;}
         body.idle-mode{filter:saturate(0.72) brightness(0.82);}
-        body.void-mode{background:#030305!important;animation:none!important;}
-        body.void-mode .links-container{background:rgba(10,10,15,0.9);border-color:rgba(255,255,255,0.12);box-shadow:0 16px 50px rgba(0,0,0,0.9),inset 0 0 20px rgba(120,80,255,0.05);}
-        body.void-mode .custom-cursor.cursor-dot{background-color:rgba(200,160,255,0.95);box-shadow:0 0 14px rgba(180,120,255,0.95);}
-        body.void-mode .custom-cursor.cursor-ring{border-color:rgba(180,120,255,0.45);}
         body.bit-8-mode{font-family:monospace,monospace!important;}
         body.bit-8-mode .links-container{border-radius:0!important;border:4px solid #fff!important;box-shadow:0 16px 40px rgba(0,0,0,0.65)!important;transition:transform 0.1s ease-out,filter 0.1s ease-out,background 0.3s ease,border-color 0.3s ease,border-radius 0s,border 0s;}
         body.bit-8-mode .icon-wrapper{filter:var(--icon-filter)!important;}
         body.bit-8-mode .custom-cursor{border-radius:0!important;}
         body.star-mode{animation:rainbowBg 1s linear infinite!important;}
         body.star-mode .links-container{animation:none!important;border-color:#ff00ff!important;animation:rainbowChaos 0.2s linear infinite!important;}
-        #particleCanvas,#voidCanvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;}
-        #voidCanvas{z-index:0;opacity:0;transition:opacity 0.6s ease;}
-        body.void-mode #voidCanvas{opacity:1;}
+        #particleCanvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;}
         #trailCanvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9998;}
         .custom-cursor{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;border-radius:50%;transform:translate(-50%,-50%);transition:width 0.25s cubic-bezier(0.16,1,0.3,1),height 0.25s cubic-bezier(0.16,1,0.3,1),background-color 0.2s ease,border 0.2s ease,backdrop-filter 0.2s ease;}
         .cursor-dot{width:6px;height:6px;background-color:rgba(255,255,255,0.95);box-shadow:0 0 12px rgba(255,255,255,0.95);}
         .cursor-ring{width:38px;height:38px;border:1.5px solid rgba(255,255,255,0.45);}
         body.hovering .cursor-dot{transform:translate(-50%,-50%) scale(0);}
         body.hovering .cursor-ring{width:74px;height:74px;border-color:rgba(255,255,255,0.9);background-color:rgba(255,255,255,0.08);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);box-shadow:0 0 30px rgba(255,255,255,0.2),inset 0 0 15px rgba(255,255,255,0.15);}
-        body.void-mode.hovering .cursor-ring{border-color:rgba(180,120,255,0.9);background-color:rgba(180,120,255,0.08);box-shadow:0 0 30px rgba(180,120,255,0.2),inset 0 0 15px rgba(180,120,255,0.15);}
         body.is-holding .cursor-dot{transform:translate(-50%,-50%) scale(2.2);background-color:rgba(255,255,255,1);box-shadow:0 0 25px rgba(255,255,255,1),0 0 50px rgba(255,255,255,0.5);}
         body.is-holding .cursor-ring{width:22px;height:22px;border-color:rgba(255,255,255,0.9);background-color:rgba(255,255,255,0.2);backdrop-filter:blur(6px);}
         body.all-contained .cursor-ring{animation:subtleRainbowRing 3s linear infinite!important;}
         .click-ripple{position:fixed;top:0;left:0;width:20px;height:20px;border:1.5px solid rgba(255,255,255,0.8);border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:10000;animation:rippleAnim 0.5s cubic-bezier(0.16,1,0.3,1) forwards;}
-        body.void-mode .click-ripple{border-color:rgba(180,120,255,0.8);animation:rippleAnimVoid 0.5s cubic-bezier(0.16,1,0.3,1) forwards;}
         @keyframes rippleAnim{0%{width:20px;height:20px;opacity:1;border-color:rgba(255,255,255,0.9);box-shadow:0 0 10px rgba(255,255,255,0.5);}100%{width:120px;height:120px;opacity:0;border-color:rgba(255,255,255,0);box-shadow:0 0 25px rgba(255,255,255,0);}}
-        @keyframes rippleAnimVoid{0%{width:20px;height:20px;opacity:1;border-color:rgba(180,120,255,0.9);box-shadow:0 0 10px rgba(180,120,255,0.5);}100%{width:120px;height:120px;opacity:0;border-color:rgba(180,120,255,0);box-shadow:0 0 25px rgba(180,120,255,0);}}
         .links-container{position:relative;z-index:2;display:flex;flex-direction:row;justify-content:center;align-items:center;gap:34px;flex-wrap:wrap;background:rgba(0,0,0,0.7);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.06);padding:32px 48px;border-radius:28px;box-shadow:0 16px 40px rgba(0,0,0,0.65);transition:transform 0.1s ease-out,filter 0.1s ease-out,background 0.3s ease,border-color 0.3s ease,border-radius 0.3s ease,border 0.3s ease;max-width:100%;}
         .icon-link,.icon-link:hover,.icon-link:focus,.icon-link:active,.icon-link:visited{display:inline-block;text-decoration:none;outline:none!important;border:none!important;box-shadow:none!important;}
         .icon-wrapper{position:relative;width:210px;height:210px;filter:var(--icon-filter);transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);}
@@ -59,13 +50,9 @@
         .icon-link:hover .icon-default{display:none;}
         .icon-link:hover .icon-hover{display:block;}
         .battery-widget{position:relative;z-index:2;display:none;align-items:center;gap:10px;background:rgba(0,0,0,0.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.08);padding:10px 18px;border-radius:14px;color:rgba(255,255,255,0.85);font-size:13px;letter-spacing:0.5px;box-shadow:0 8px 24px rgba(0,0,0,0.5);}
-        body.void-mode .battery-widget{background:rgba(15,15,25,0.8);border-color:rgba(180,120,255,0.2);color:rgba(180,120,255,0.85);}
         .battery-icon-container{position:relative;width:26px;height:13px;border:1.5px solid rgba(255,255,255,0.8);border-radius:3px;padding:1.5px;display:flex;align-items:center;}
-        body.void-mode .battery-icon-container{border-color:rgba(180,120,255,0.8);}
         .battery-icon-container::after{content:'';position:absolute;right:-4px;top:3.5px;width:2px;height:4px;background:rgba(255,255,255,0.8);border-radius:0 1px 1px 0;}
-        body.void-mode .battery-icon-container::after{background:rgba(180,120,255,0.8);}
         .battery-level-fill{height:100%;background:rgba(255,255,255,0.9);border-radius:1px;width:0%;transition:width 0.3s ease;}
-        body.void-mode .battery-level-fill{background:rgba(180,120,255,0.9);box-shadow:0 0 8px rgba(180,120,255,0.6);}
         .battery-widget.charging .battery-level-fill{background:#4ade80;box-shadow:0 0 8px rgba(74,222,128,0.6);}
         .idle-message{position:fixed;left:50%;bottom:34px;transform:translateX(-50%) translateY(25px);z-index:9997;padding:24px 34px;color:rgba(210,190,255,0.95);background:rgba(10,5,20,0.82);border:1px solid rgba(180,120,255,0.25);font-family:monospace,monospace;font-size:20px;letter-spacing:0.8px;opacity:0;pointer-events:none;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 0 40px rgba(100,50,180,0.2),inset 0 0 25px rgba(100,50,180,0.08);transition:opacity 0.8s ease,transform 0.8s cubic-bezier(0.16,1,0.3,1),background 1s ease,color 1s ease;}
         .idle-prompt{color:rgba(255,255,255,0.35);margin-right:8px;}
@@ -81,7 +68,7 @@
             .idle-message{bottom:20px;max-width:calc(100vw - 32px);white-space:nowrap;font-size:16px;padding:18px 24px;}
         }
         @media (hover:none) and (pointer:coarse){
-            .custom-cursor,#particleCanvas,#trailCanvas,#voidCanvas{display:none;}
+            .custom-cursor,#particleCanvas,#trailCanvas{display:none;}
             body{cursor:auto;}
         }
     </style>
@@ -99,7 +86,6 @@
     <link rel="preload" as="image" href="./spotify2.png">
 
     <canvas id="particleCanvas"></canvas>
-    <canvas id="voidCanvas"></canvas>
     <canvas id="trailCanvas"></canvas>
 
     <div class="custom-cursor cursor-dot" id="cursorDot"></div>
@@ -218,34 +204,9 @@
             cv.width=window.innerWidth;cv.height=window.innerHeight;
             document.getElementById('trailCanvas').width=window.innerWidth;
             document.getElementById('trailCanvas').height=window.innerHeight;
-            document.getElementById('voidCanvas').width=window.innerWidth;
-            document.getElementById('voidCanvas').height=window.innerHeight;
         }
         window.addEventListener('resize',handleResize);
         handleResize();
-
-        const vcv=document.getElementById('voidCanvas'),vctx=vcv.getContext('2d');
-        let voidOrbs=[];
-        for(let i=0;i<18;i++){
-            voidOrbs.push({
-                x:Math.random()*vcv.width,y:Math.random()*vcv.height,
-                radius:Math.random()*140+60,speedX:(Math.random()-0.5)*0.4,speedY:(Math.random()-0.5)*0.4,alpha:Math.random()*0.15+0.05
-            });
-        }
-        function drawVoidDrift(){
-            if(!document.body.classList.contains('void-mode'))return;
-            vctx.fillStyle='rgba(3, 3, 5, 0.25)';vctx.fillRect(0,0,vcv.width,vcv.height);
-            voidOrbs.forEach(o=>{
-                o.x+=o.speedX;o.y+=o.speedY;
-                if(o.x<-150)o.x=vcv.width+150;if(o.x>vcv.width+150)o.x=-150;
-                if(o.y<-150)o.y=vcv.height+150;if(o.y>vcv.height+150)o.y=-150;
-                let g=vctx.createRadialGradient(o.x,o.y,0,o.x,o.y,o.radius);
-                g.addColorStop(0,`rgba(138, 43, 226, ${o.alpha})`);
-                g.addColorStop(0.5,`rgba(75, 0, 130, ${o.alpha*0.5})`);
-                g.addColorStop(1,'rgba(0, 0, 0, 0)');
-                vctx.fillStyle=g;vctx.beginPath();vctx.arc(o.x,o.y,o.radius,0,Math.PI*2);vctx.fill();
-            });
-        }
 
         class Particle{
             constructor(x,y,sx,sy,sz){
@@ -290,7 +251,7 @@
                 if(document.body.classList.contains('bit-8-mode')||document.body.classList.contains('star-mode')){
                     ctx.rect(this.x-this.size,this.y-this.size,this.size*2,this.size*2);
                 }else{ctx.arc(this.x,this.y,this.size,0,Math.PI*2);}
-                let isVoid=document.body.classList.contains('void-mode'),isStar=document.body.classList.contains('star-mode');
+                let isStar=document.body.classList.contains('star-mode');
                 if(isStar){
                     let h=(Date.now()+this.x*2)%360;
                     ctx.fillStyle=`hsla(${h}, 100%, 65%, ${this.opacity})`;ctx.shadowColor=`hsla(${h}, 100%, 50%, 0.9)`;
@@ -299,8 +260,8 @@
                 }else if(this.preservedColor){
                     ctx.fillStyle=this.preservedColor;ctx.shadowColor=this.preservedColor;
                 }else{
-                    ctx.fillStyle=isVoid?`rgba(180, 140, 255, ${this.opacity})`:`rgba(255, 255, 255, ${this.opacity})`;
-                    ctx.shadowColor=isVoid?'rgba(138, 43, 226, 0.5)':'rgba(255, 255, 255, 0.3)';
+                    ctx.fillStyle=`rgba(255, 255, 255, ${this.opacity})`;
+                    ctx.shadowColor='rgba(255, 255, 255, 0.3)';
                 }
                 ctx.shadowBlur=(document.body.classList.contains('bit-8-mode')||isStar)?0:8;
                 ctx.fill();ctx.shadowBlur=0;
@@ -373,7 +334,6 @@
                 if(cap>0){
                     playSound(cap>=particles.length?'allCaptured':'release');
                     
-                 
                     if (cap >= particles.length && !konamiUsedAfterSpecial && currentSpecialTextState === 'initial') {
                         successCaptureCount++;
                         if (successCaptureCount >= 10) {
@@ -401,7 +361,6 @@
             if(e.code===konamiSeq[konamiIdx]){
                 konamiIdx++;
                 if(konamiIdx===konamiSeq.length){
-                   
                     if (specialMessageActive && !konamiUsedAfterSpecial) {
                         konamiUsedAfterSpecial = true;
                         dismissSpecialIdleMessage();
@@ -431,10 +390,8 @@
             if(e.key.length===1){
                 typed+=e.key.toLowerCase();
                 if(typed.length>20)typed=typed.slice(-20);
-                if(typed.includes('void')||typed.includes('abstract')||typed.includes('zen')){
-                    document.body.classList.remove('bit-8-mode','star-mode');document.body.classList.toggle('void-mode');typed='';
-                }else if(typed.includes('cyber')){
-                    applyTheme('linear-gradient(45deg, #050505, #00ffcc, #ff007f)','rgba(0, 0, 0, 0.7)');document.body.style.filter="contrast(1.3) brightness(1.1)";typed='';
+                if(typed.includes('abstract')||typed.includes('zen')){
+                    document.body.classList.remove('bit-8-mode','star-mode');typed='';
                 }else if(typed.includes('sunset')){
                     applyTheme('linear-gradient(135deg, #ff512f, #dd2476, #2b1055)','rgba(0, 0, 0, 0.7)');document.body.style.filter="sepia(0.3) saturate(1.4)";typed='';
                 }else if(typed.includes('monochrome')){
@@ -455,7 +412,7 @@
         });
 
         function applyTheme(grad,boxBg){
-            document.body.classList.remove('void-mode','bit-8-mode','star-mode');
+            document.body.classList.remove('bit-8-mode','star-mode');
             document.body.style.background=grad;document.body.style.backgroundSize="500% 500%";
             document.body.style.animation="lavaGradient1 25s ease infinite";linksBox.style.background=boxBg;
         }
@@ -530,7 +487,7 @@
             cursorHistory.push({x:ringX,y:ringY});
             if(cursorHistory.length>maxHistory)cursorHistory.shift();
 
-            ctx.clearRect(0,0,cv.width,cv.height);drawVoidDrift();
+            ctx.clearRect(0,0,cv.width,cv.height);
             particles.forEach(p=>{
                 if(p.isHeartForm){p.x+=(p.targetX-p.x)*0.025;p.y+=(p.targetY-p.y)*0.025;}
                 p.update();p.draw();
@@ -540,7 +497,7 @@
             if(cursorHistory.length>1){
                 tctx.beginPath();tctx.moveTo(cursorHistory[0].x,cursorHistory[0].y);
                 for(let i=1;i<cursorHistory.length;i++)tctx.lineTo(cursorHistory[i].x,cursorHistory[i].y);
-                let isVoid=document.body.classList.contains('void-mode'),isStar=document.body.classList.contains('star-mode');
+                let isStar=document.body.classList.contains('star-mode');
                 let grad=tctx.createLinearGradient(cursorHistory[0].x,cursorHistory[0].y,ringX,ringY);
                 if(isStar){
                     let h=Date.now()%360;
@@ -548,15 +505,15 @@
                     grad.addColorStop(0.5,`hsla(${(h+60)%360}, 100%, 50%, 0.5)`);
                     grad.addColorStop(1,`hsla(${(h+120)%360}, 100%, 50%, 0.9)`);
                 }else{
-                    grad.addColorStop(0,isVoid?'rgba(138, 43, 226, 0)':'rgba(255, 255, 255, 0)');
-                    grad.addColorStop(0.5,isVoid?'rgba(138, 43, 226, 0.15)':'rgba(255, 255, 255, 0.15)');
-                    grad.addColorStop(1,isVoid?'rgba(186, 85, 211, 0.65)':'rgba(255, 255, 255, 0.65)');
+                    grad.addColorStop(0,'rgba(255, 255, 255, 0)');
+                    grad.addColorStop(0.5,'rgba(255, 255, 255, 0.15)');
+                    grad.addColorStop(1,'rgba(255, 255, 255, 0.65)');
                 }
                 tctx.strokeStyle=grad;tctx.lineWidth=Math.max(4,48-(cursorHistory.length*1.5)+Math.abs(scrollVel));
                 tctx.lineCap=(document.body.classList.contains('bit-8-mode')||isStar)?'butt':'round';
                 tctx.lineJoin=(document.body.classList.contains('bit-8-mode')||isStar)?'miter':'round';
                 tctx.shadowBlur=(document.body.classList.contains('bit-8-mode')||isStar)?0:18;
-                tctx.shadowColor=isVoid?'rgba(138, 43, 226, 0.5)':'rgba(255, 255, 255, 0.5)';
+                tctx.shadowColor='rgba(255, 255, 255, 0.5)';
                 tctx.stroke();tctx.shadowBlur=0;
             }
             requestAnimationFrame(renderLoop);

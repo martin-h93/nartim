@@ -251,7 +251,6 @@
             display: block;
         }
 
-        /* Battery Widget */
         .battery-widget {
             position: relative;
             z-index: 2;
@@ -305,7 +304,6 @@
             box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
         }
 
-        /* Permission Button für Gyroskop (iOS/Android Berechtigungsdialog) */
         .gyro-btn {
             position: relative;
             z-index: 2;
@@ -321,7 +319,6 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
-        /* Mobile Anpassungen */
         @media (max-width: 900px) {
             .links-container {
                 display: grid;
@@ -776,13 +773,11 @@
             }).catch(() => {});
         }
 
-        // Gyroskop-Scrollen (Wippen des Handys)
         const gyroBtn = document.getElementById('gyroBtn');
         let gyroActive = false;
-        let baseBeta = null; // Neigung nach vorne/hinten
+        let baseBeta = null;
 
         if (window.DeviceOrientationEvent) {
-            // Zeige Button auf mobilen Geräten an
             if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
                 gyroBtn.style.display = 'block';
             }
@@ -808,15 +803,14 @@
             window.addEventListener('deviceorientation', (event) => {
                 if (!gyroActive) return;
                 
-                let beta = event.beta; // Neigung vor/zurück (-180 bis 180)
+                let beta = event.beta;
                 if (beta === null) return;
 
                 if (baseBeta === null) {
-                    baseBeta = beta; // Startposition als Referenz
+                    baseBeta = beta;
                 }
 
                 let diff = beta - baseBeta;
-                // Wenn man das Handy nach vorne/hinten neigt (> 3 Grad Schwelle)
                 if (Math.abs(diff) > 3) {
                     let scrollSpeed = diff * 1.5;
                     window.scrollBy({

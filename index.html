@@ -69,7 +69,6 @@
             overflow: hidden;
         }
 
-        /* Background Particle Canvas */
         #particleCanvas {
             position: fixed;
             top: 0;
@@ -80,7 +79,6 @@
             z-index: 1;
         }
 
-        /* Prominent Fluid Trail Canvas */
         #trailCanvas {
             position: fixed;
             top: 0;
@@ -91,7 +89,6 @@
             z-index: 9998;
         }
 
-        /* Custom Cursor Elements */
         .custom-cursor {
             position: fixed;
             top: 0;
@@ -120,7 +117,6 @@
             border: 1.5px solid rgba(255, 255, 255, 0.45);
         }
 
-        /* Hover states triggered via JS classes */
         body.hovering .cursor-dot {
             transform: translate(-50%, -50%) scale(0);
         }
@@ -135,7 +131,6 @@
             box-shadow: 0 0 30px rgba(255, 255, 255, 0.2), inset 0 0 15px rgba(255, 255, 255, 0.15);
         }
 
-        /* Hold state styles */
         body.is-holding .cursor-dot {
             transform: translate(-50%, -50%) scale(2.2);
             background-color: rgba(255, 255, 255, 1);
@@ -150,7 +145,6 @@
             backdrop-filter: blur(6px);
         }
 
-        /* Click Ripple Effect */
         .click-ripple {
             position: fixed;
             top: 0;
@@ -249,6 +243,60 @@
             display: block;
         }
 
+        /* Battery Widget unter der Symbolbox */
+        .battery-widget {
+            position: relative;
+            z-index: 2;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 10px 18px;
+            border-radius: 14px;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        .battery-icon-container {
+            position: relative;
+            width: 26px;
+            height: 13px;
+            border: 1.5px solid rgba(255, 255, 255, 0.8);
+            border-radius: 3px;
+            padding: 1.5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .battery-icon-container::after {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: 3.5px;
+            width: 2px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 0 1px 1px 0;
+        }
+
+        .battery-level-fill {
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 1px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .battery-widget.charging .battery-level-fill {
+            background: #4ade80;
+            box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+        }
+
         @media (hover: none) and (pointer: coarse) {
             .custom-cursor, #particleCanvas, #trailCanvas {
                 display: none;
@@ -302,6 +350,13 @@
                 <img src="spotify2.png" alt="" class="icon-hover">
             </div>
         </a>
+    </div>
+
+    <div class="battery-widget" id="batteryWidget">
+        <div class="battery-icon-container">
+            <div class="battery-level-fill" id="batteryFill"></div>
+        </div>
+        <span id="batteryText">--%</span>
     </div>
 
     <script>
@@ -611,74 +666,71 @@
         bodyEl.style.backgroundSize = "500% 500%";
         bodyEl.style.animation = randomPreset.animation;
 
-        const text = "nartim.de";
-        const emojiFrames = [
-            " ( °-°) ",
-            " ( °-°)" ,
-            " (  °-°)",
-            " (   °-)",
-            " (    °)",
-            " (     )",
-            " (°    )",
-            " (-°   )",
-            " (°-°  )"
-        ];
+        // Terminal / Clock Tab Animation
+        let showCursor = true;
+        let isTypingDone = false;
+        let charIndex = 0;
 
-        let state = "BUILDING_ALL";
-        let fullString = text + emojiFrames[0];
-        let fullArray = Array.from(fullString);
-        let currentIndex = 1;
-        let emojiStep = 0;
-        let emojiLoops = 0;
+        function getFullTargetString() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            return `[${hours}:${minutes}:${seconds}] guest@nartim:~$ `;
+        }
 
-        const baseSpeed = 100;
-        const maxEmojiLoops = 2;
+        let fullString = getFullTargetString();
 
-        function tick() {
-            if (state === "BUILDING_ALL") {
-                currentIndex++;
-                document.title = fullArray.slice(0, currentIndex).join('');
-
-                if (currentIndex === fullArray.length) {
-                    state = "ANIMATING_EMOJI";
-                }
-                setTimeout(tick, baseSpeed);
-            } 
-            else if (state === "ANIMATING_EMOJI") {
-                fullString = text + emojiFrames[emojiStep];
-                fullArray = Array.from(fullString);
-                document.title = fullString;
-                
-                emojiStep = (emojiStep + 1) % emojiFrames.length;
-
-                if (emojiStep === 0) {
-                    emojiLoops++;
-                }
-
-                if (emojiLoops >= maxEmojiLoops) {
-                    emojiLoops = 0;
-                    emojiStep = 0;
-                    currentIndex = fullArray.length;
-                    state = "DELETING_ALL";
-                }
-                setTimeout(tick, baseSpeed);
-            } 
-            else if (state === "DELETING_ALL") {
-                if (currentIndex > 1) {
-                    currentIndex--;
-                    document.title = fullArray.slice(0, currentIndex).join('');
-                    setTimeout(tick, baseSpeed);
-                } else {
-                    fullString = text + emojiFrames[0];
-                    fullArray = Array.from(fullString);
-                    state = "BUILDING_ALL";
-                    setTimeout(tick, baseSpeed * 3);
-                }
+        function typeTerminal() {
+            fullString = getFullTargetString();
+            if (charIndex <= fullString.length) {
+                document.title = fullString.slice(0, charIndex) + (showCursor ? "_" : " ");
+                charIndex++;
+                setTimeout(typeTerminal, 80);
+            } else {
+                isTypingDone = true;
             }
         }
 
-        document.title = "n";
-        setTimeout(tick, baseSpeed);
+        setTimeout(typeTerminal, 300);
+
+        setInterval(() => {
+            showCursor = !showCursor;
+            if (isTypingDone) {
+                document.title = getFullTargetString() + (showCursor ? "_" : " ");
+            }
+        }, 1000);
+
+        // Battery API Detection & Widget Update
+        if ('getBattery' in navigator) {
+            navigator.getBattery().then(battery => {
+                const widget = document.getElementById('batteryWidget');
+                const fill = document.getElementById('batteryFill');
+                const text = document.getElementById('batteryText');
+
+                function updateBatteryUI() {
+                    const level = Math.round(battery.level * 100);
+                    fill.style.width = level + '%';
+                    text.textContent = level + '%';
+
+                    if (battery.charging) {
+                        widget.classList.add('charging');
+                    } else {
+                        widget.classList.remove('charging');
+                    }
+
+                    // Widget nur anzeigen, wenn Battery API Werte liefert
+                    widget.style.display = 'flex';
+                }
+
+                updateBatteryUI();
+
+                battery.addEventListener('levelchange', updateBatteryUI);
+                battery.addEventListener('chargingchange', updateBatteryUI);
+            }).catch(() => {
+                // Keine Batterie verfügbar oder blockiert (z.B. Desktop-PC) -> Widget bleibt versteckt
+            });
+        }
     </script>
 
 </body>

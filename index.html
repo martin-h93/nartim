@@ -152,484 +152,273 @@
     </div>
 
     <script>
-        let audioContextInstance = null;
-
-        function getAudioContext() {
-            if (!audioContextInstance) {
-                audioContextInstance = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioContextInstance.state === 'suspended') {
-                audioContextInstance.resume();
-            }
-            return audioContextInstance;
+        let ac=null;
+        function getAudioContext(){
+            if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();
+            if(ac.state==='suspended')ac.resume();
+            return ac;
         }
-
-        function playSound(type) {
-            try {
-                const ctx = getAudioContext();
-                const currentTime = ctx.currentTime;
-                
-                if (type === 'click') {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(450, currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(150, currentTime + 0.08);
-                    gain.gain.setValueAtTime(0.12, currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, currentTime + 0.08);
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.start();
-                    osc.stop(currentTime + 0.08);
-                } else if (type === 'holdStart') {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(220, currentTime);
-                    osc.frequency.linearRampToValueAtTime(330, currentTime + 0.15);
-                    gain.gain.setValueAtTime(0.01, currentTime);
-                    gain.gain.linearRampToValueAtTime(0.08, currentTime + 0.15);
-                    gain.gain.exponentialRampToValueAtTime(0.001, currentTime + 0.2);
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.start();
-                    osc.stop(currentTime + 0.2);
-                } else if (type === 'release') {
-                    [523.25, 659.25, 783.99].forEach((freq, index) => {
-                        const osc = ctx.createOscillator();
-                        const gain = ctx.createGain();
-                        osc.type = 'triangle';
-                        osc.frequency.setValueAtTime(freq, currentTime + index * 0.06);
-                        gain.gain.setValueAtTime(0.001, currentTime + index * 0.06);
-                        gain.gain.linearRampToValueAtTime(0.1, currentTime + index * 0.06 + 0.02);
-                        gain.gain.exponentialRampToValueAtTime(0.001, currentTime + index * 0.06 + 0.3);
-                        osc.connect(gain);
-                        gain.connect(ctx.destination);
-                        osc.start(currentTime + index * 0.06);
-                        osc.stop(currentTime + index * 0.06 + 0.3);
+        function playSound(type){
+            try{
+                const ctx=getAudioContext(),t=ctx.currentTime;
+                if(type==='click'){
+                    const o=ctx.createOscillator(),g=ctx.createGain();
+                    o.type='sine';o.frequency.setValueAtTime(450,t);o.frequency.exponentialRampToValueAtTime(150,t+0.08);
+                    g.gain.setValueAtTime(0.12,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.08);
+                    o.connect(g);g.connect(ctx.destination);o.start();o.stop(t+0.08);
+                }else if(type==='holdStart'){
+                    const o=ctx.createOscillator(),g=ctx.createGain();
+                    o.type='sine';o.frequency.setValueAtTime(220,t);o.frequency.linearRampToValueAtTime(330,t+0.15);
+                    g.gain.setValueAtTime(0.01,t);g.gain.linearRampToValueAtTime(0.08,t+0.15);g.gain.exponentialRampToValueAtTime(0.001,t+0.2);
+                    o.connect(g);g.connect(ctx.destination);o.start();o.stop(t+0.2);
+                }else if(type==='release'){
+                    [523.25,659.25,783.99].forEach((f,i)=>{
+                        const o=ctx.createOscillator(),g=ctx.createGain();
+                        o.type='triangle';o.frequency.setValueAtTime(f,t+i*0.06);
+                        g.gain.setValueAtTime(0.001,t+i*0.06);g.gain.linearRampToValueAtTime(0.1,t+i*0.06+0.02);g.gain.exponentialRampToValueAtTime(0.001,t+i*0.06+0.3);
+                        o.connect(g);g.connect(ctx.destination);o.start(t+i*0.06);o.stop(t+i*0.06+0.3);
                     });
-                } else if (type === 'allCaptured') {
-                    [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50].forEach((freq, index) => {
-                        const osc = ctx.createOscillator();
-                        const gain = ctx.createGain();
-                        osc.type = 'sawtooth';
-                        osc.frequency.setValueAtTime(freq, currentTime + index * 0.04);
-                        gain.gain.setValueAtTime(0.001, currentTime + index * 0.04);
-                        gain.gain.linearRampToValueAtTime(0.12 * 0.6, currentTime + index * 0.04 + 0.01);
-                        gain.gain.exponentialRampToValueAtTime(0.0001, currentTime + index * 0.04 + 0.35);
-                        osc.connect(gain);
-                        gain.connect(ctx.destination);
-                        osc.start(currentTime + index * 0.04);
-                        osc.stop(currentTime + index * 0.04 + 0.35);
+                }else if(type==='allCaptured'){
+                    [261.63,329.63,392.00,523.25,659.25,783.99,1046.50].forEach((f,i)=>{
+                        const o=ctx.createOscillator(),g=ctx.createGain();
+                        o.type='sawtooth';o.frequency.setValueAtTime(f,t+i*0.04);
+                        g.gain.setValueAtTime(0.001,t+i*0.04);g.gain.linearRampToValueAtTime(0.072,t+i*0.04+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t+i*0.04+0.35);
+                        o.connect(g);g.connect(ctx.destination);o.start(t+i*0.04);o.stop(t+i*0.04+0.35);
                     });
-                } else if (type === 'konamiStandard') {
-                    [330, 392, 659, 523, 587, 784].forEach((freq, index) => {
-                        const osc = ctx.createOscillator();
-                        const gain = ctx.createGain();
-                        osc.type = 'square';
-                        osc.frequency.setValueAtTime(freq, currentTime + index * 0.07);
-                        gain.gain.setValueAtTime(0.06, currentTime + index * 0.07);
-                        gain.gain.exponentialRampToValueAtTime(0.001, currentTime + index * 0.07 + 0.09);
-                        osc.connect(gain);
-                        gain.connect(ctx.destination);
-                        osc.start(currentTime + index * 0.07);
-                        osc.stop(currentTime + index * 0.07 + 0.09);
+                }else if(type==='konamiStandard'){
+                    [330,392,659,523,587,784].forEach((f,i)=>{
+                        const o=ctx.createOscillator(),g=ctx.createGain();
+                        o.type='square';o.frequency.setValueAtTime(f,t+i*0.07);
+                        g.gain.setValueAtTime(0.06,t+i*0.07);g.gain.exponentialRampToValueAtTime(0.001,t+i*0.07+0.09);
+                        o.connect(g);g.connect(ctx.destination);o.start(t+i*0.07);o.stop(t+i*0.07+0.09);
                     });
-                } else if (type === 'konamiSpecial') {
-                    [587.33, 659.25, 880.00, 987.77, 1318.51].forEach((freq, index) => {
-                        const osc = ctx.createOscillator();
-                        const gain = ctx.createGain();
-                        osc.type = 'sine';
-                        osc.frequency.setValueAtTime(freq, currentTime + index * 0.08);
-                        gain.gain.setValueAtTime(0.08, currentTime + index * 0.08);
-                        gain.gain.exponentialRampToValueAtTime(0.0001, currentTime + index * 0.08 + 0.25);
-                        osc.connect(gain);
-                        gain.connect(ctx.destination);
-                        osc.start(currentTime + index * 0.08);
-                        osc.stop(currentTime + index * 0.08 + 0.25);
+                }else if(type==='konamiSpecial'){
+                    [587.33,659.25,880.00,987.77,1318.51].forEach((f,i)=>{
+                        const o=ctx.createOscillator(),g=ctx.createGain();
+                        o.type='sine';o.frequency.setValueAtTime(f,t+i*0.08);
+                        g.gain.setValueAtTime(0.08,t+i*0.08);g.gain.exponentialRampToValueAtTime(0.0001,t+i*0.08+0.25);
+                        o.connect(g);g.connect(ctx.destination);o.start(t+i*0.08);o.stop(t+i*0.08+0.25);
                     });
-                } else if (type === 'heartExplode') {
-                    [784.00, 659.25, 523.25, 392.00, 261.63].forEach((freq, index) => {
-                        const osc = ctx.createOscillator();
-                        const gain = ctx.createGain();
-                        osc.type = 'sawtooth';
-                        osc.frequency.setValueAtTime(freq, currentTime + index * 0.05);
-                        gain.gain.setValueAtTime(0.05, currentTime + index * 0.05);
-                        gain.gain.exponentialRampToValueAtTime(0.0001, currentTime + index * 0.05 + 0.08);
-                        osc.connect(gain);
-                        gain.connect(ctx.destination);
-                        osc.start(currentTime + index * 0.05);
-                        osc.stop(currentTime + index * 0.05 + 0.08);
+                }else if(type==='heartExplode'){
+                    [784.00,659.25,523.25,392.00,261.63].forEach((f,i)=>{
+                        const o=ctx.createOscillator(),g=ctx.createGain();
+                        o.type='sawtooth';o.frequency.setValueAtTime(f,t+i*0.05);
+                        g.gain.setValueAtTime(0.05,t+i*0.05);g.gain.exponentialRampToValueAtTime(0.0001,t+i*0.05+0.08);
+                        o.connect(g);g.connect(ctx.destination);o.start(t+i*0.05);o.stop(t+i*0.05+0.08);
                     });
                 }
-            } catch (error) {}
+            }catch(e){}
         }
 
-        const canvasElement = document.getElementById('particleCanvas');
-        const canvasContext = canvasElement.getContext('2d');
-        let particleCollection = [];
-        const maxParticles = 35;
+        const cv=document.getElementById('particleCanvas'),ctx=cv.getContext('2d');
+        let particles=[];
+        const maxParticles=35;
 
-        function handleResize() {
-            canvasElement.width = window.innerWidth;
-            canvasElement.height = window.innerHeight;
-            const trailCanvasElement = document.getElementById('trailCanvas');
-            trailCanvasElement.width = window.innerWidth;
-            trailCanvasElement.height = window.innerHeight;
-            const voidCanvasElement = document.getElementById('voidCanvas');
-            voidCanvasElement.width = window.innerWidth;
-            voidCanvasElement.height = window.innerHeight;
+        function handleResize(){
+            cv.width=window.innerWidth;cv.height=window.innerHeight;
+            document.getElementById('trailCanvas').width=window.innerWidth;
+            document.getElementById('trailCanvas').height=window.innerHeight;
+            document.getElementById('voidCanvas').width=window.innerWidth;
+            document.getElementById('voidCanvas').height=window.innerHeight;
         }
-
-        window.addEventListener('resize', handleResize);
+        window.addEventListener('resize',handleResize);
         handleResize();
 
-        const voidCanvasElement = document.getElementById('voidCanvas');
-        const voidContext = voidCanvasElement.getContext('2d');
-        let voidOrbCollection = [];
-
-        for (let i = 0; i < 18; i++) {
-            voidOrbCollection.push({
-                x: Math.random() * voidCanvasElement.width,
-                y: Math.random() * voidCanvasElement.height,
-                radius: Math.random() * 140 + 60,
-                speedX: (Math.random() - 0.5) * 0.4,
-                speedY: (Math.random() - 0.5) * 0.4,
-                alpha: Math.random() * 0.15 + 0.05
+        const vcv=document.getElementById('voidCanvas'),vctx=vcv.getContext('2d');
+        let voidOrbs=[];
+        for(let i=0;i<18;i++){
+            voidOrbs.push({
+                x:Math.random()*vcv.width,y:Math.random()*vcv.height,
+                radius:Math.random()*140+60,speedX:(Math.random()-0.5)*0.4,speedY:(Math.random()-0.5)*0.4,alpha:Math.random()*0.15+0.05
+            });
+        }
+        function drawVoidDrift(){
+            if(!document.body.classList.contains('void-mode'))return;
+            vctx.fillStyle='rgba(3, 3, 5, 0.25)';vctx.fillRect(0,0,vcv.width,vcv.height);
+            voidOrbs.forEach(o=>{
+                o.x+=o.speedX;o.y+=o.speedY;
+                if(o.x<-150)o.x=vcv.width+150;if(o.x>vcv.width+150)o.x=-150;
+                if(o.y<-150)o.y=vcv.height+150;if(o.y>vcv.height+150)o.y=-150;
+                let g=vctx.createRadialGradient(o.x,o.y,0,o.x,o.y,o.radius);
+                g.addColorStop(0,`rgba(138, 43, 226, ${o.alpha})`);
+                g.addColorStop(0.5,`rgba(75, 0, 130, ${o.alpha*0.5})`);
+                g.addColorStop(1,'rgba(0, 0, 0, 0)');
+                vctx.fillStyle=g;vctx.beginPath();vctx.arc(o.x,o.y,o.radius,0,Math.PI*2);vctx.fill();
             });
         }
 
-        function drawVoidDrift() {
-            if (!document.body.classList.contains('void-mode')) return;
-            voidContext.fillStyle = 'rgba(3, 3, 5, 0.25)';
-            voidContext.fillRect(0, 0, voidCanvasElement.width, voidCanvasElement.height);
-            voidOrbCollection.forEach(orb => {
-                orb.x += orb.speedX;
-                orb.y += orb.speedY;
-                if (orb.x < -150) orb.x = voidCanvasElement.width + 150;
-                if (orb.x > voidCanvasElement.width + 150) orb.x = -150;
-                if (orb.y < -150) orb.y = voidCanvasElement.height + 150;
-                if (orb.y > voidCanvasElement.height + 150) orb.y = -150;
-                let gradient = voidContext.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, orb.radius);
-                gradient.addColorStop(0, `rgba(138, 43, 226, ${orb.alpha})`);
-                gradient.addColorStop(0.5, `rgba(75, 0, 130, ${orb.alpha * 0.5})`);
-                gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-                voidContext.fillStyle = gradient;
-                voidContext.beginPath();
-                voidContext.arc(orb.x, orb.y, orb.radius, 0, Math.PI * 2);
-                voidContext.fill();
-            });
-        }
-
-        class Particle {
-            constructor(x, y, customSpeedX, customSpeedY, customSize) {
-                if (x !== undefined && y !== undefined) {
-                    this.x = x;
-                    this.y = y;
-                    this.size = customSize || (Math.random() * 3.5 + 1.2);
-                    this.speedX = customSpeedX || (Math.random() - 0.5) * 4;
-                    this.speedY = customSpeedY || (Math.random() - 0.5) * 4;
-                    this.opacity = Math.random() * 0.4 + 0.4;
-                    this.isBurst = true;
-                } else {
-                    this.reset();
-                }
+        class Particle{
+            constructor(x,y,sx,sy,sz){
+                if(x!==undefined&&y!==undefined){
+                    this.x=x;this.y=y;this.size=sz||(Math.random()*3.5+1.2);
+                    this.speedX=sx||(Math.random()-0.5)*4;this.speedY=sy||(Math.random()-0.5)*4;
+                    this.opacity=Math.random()*0.4+0.4;this.isBurst=true;
+                }else{this.reset();}
             }
-
-            reset() {
-                this.x = Math.random() * canvasElement.width;
-                this.y = Math.random() * canvasElement.height;
-                this.size = Math.random() * 4 + 1.5;
-                this.speedY = -(Math.random() * 0.4 + 0.2);
-                this.speedX = (Math.random() - 0.5) * 0.3;
-                this.opacity = Math.random() * 0.4 + 0.1;
-                this.isBurst = false;
+            reset(){
+                this.x=Math.random()*cv.width;this.y=Math.random()*cv.height;
+                this.size=Math.random()*4+1.5;this.speedY=-(Math.random()*0.4+0.2);
+                this.speedX=(Math.random()-0.5)*0.3;this.opacity=Math.random()*0.4+0.1;this.isBurst=false;
             }
-
-            update() {
-                if (this.isBurst) {
-                    this.x += this.speedX;
-                    this.y += this.speedY;
-                    this.speedX *= 0.92;
-                    this.speedY *= 0.92;
-                    if (Math.abs(this.speedX) < 0.1 && Math.abs(this.speedY) < 0.1) {
-                        this.isBurst = false;
-                        this.speedY = -(Math.random() * 0.4 + 0.2);
-                        this.speedX = (Math.random() - 0.5) * 0.3;
+            update(){
+                if(this.isBurst){
+                    this.x+=this.speedX;this.y+=this.speedY;this.speedX*=0.92;this.speedY*=0.92;
+                    if(Math.abs(this.speedX)<0.1&&Math.abs(this.speedY)<0.1){
+                        this.isBurst=false;this.speedY=-(Math.random()*0.4+0.2);this.speedX=(Math.random()-0.5)*0.3;
                     }
-                } else if (this.isHeartForm) {
-                } else if (this.isCoolingDown) {
-                    this.x += this.speedX;
-                    this.y += this.speedY;
-                    this.speedX *= 0.96;
-                    this.speedY *= 0.96;
-                    if (Math.abs(this.speedX) <= 0.3 && Math.abs(this.speedY) <= 0.5) {
-                        this.isCoolingDown = false;
-                        this.speedY = -(Math.random() * 0.4 + 0.2);
-                        this.speedX = (Math.random() - 0.5) * 0.3;
+                }else if(this.isCoolingDown){
+                    this.x+=this.speedX;this.y+=this.speedY;this.speedX*=0.96;this.speedY*=0.96;
+                    if(Math.abs(this.speedX)<=0.3&&Math.abs(this.speedY)<=0.5){
+                        this.isCoolingDown=false;this.speedY=-(Math.random()*0.4+0.2);this.speedX=(Math.random()-0.5)*0.3;
                     }
-                } else {
-                    this.y += this.speedY + scrollVelocity * 0.2;
-                    this.x += this.speedX;
+                }else if(!this.isHeartForm){
+                    this.y+=this.speedY+scrollVel*0.2;this.x+=this.speedX;
                 }
-
-                let deltaX = mouseX - this.x;
-                let deltaY = mouseY - this.y;
-                let distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-                let maxDistance = 120;
-                let isHolding = document.body.classList.contains('is-holding');
-
-                if (isHolding) {
-                    if (distance > 5) {
-                        this.x += (deltaX / distance) * 2.5;
-                        this.y += (deltaY / distance) * 2.5;
-                    }
-                } else if (distance < maxDistance) {
-                    let force = 1 - (distance / maxDistance);
-                    let angle = Math.atan2(deltaY, deltaX);
-                    this.x -= Math.cos(angle) * force * 3;
-                    this.y -= Math.sin(angle) * force * 3;
+                let dx=mouseX-this.x,dy=mouseY-this.y,dist=Math.sqrt(dx*dx+dy*dy);
+                if(document.body.classList.contains('is-holding')){
+                    if(dist>5){this.x+=(dx/dist)*2.5;this.y+=(dy/dist)*2.5;}
+                }else if(dist<120){
+                    let f=1-(dist/120),a=Math.atan2(dy,dx);
+                    this.x-=Math.cos(a)*f*3;this.y-=Math.sin(a)*f*3;
                 }
-
-                if (this.y < -10) {
-                    this.y = canvasElement.height + 10;
-                    this.x = Math.random() * canvasElement.width;
-                }
-                if (this.y > canvasElement.height + 10) {
-                    this.y = -10;
-                    this.x = Math.random() * canvasElement.width;
-                }
-                if (this.x < -10 || this.x > canvasElement.width + 10) {
-                    this.x = Math.random() * canvasElement.width;
-                }
+                if(this.y<-10){this.y=cv.height+10;this.x=Math.random()*cv.width;}
+                if(this.y>cv.height+10){this.y=-10;this.x=Math.random()*cv.width;}
+                if(this.x<-10||this.x>cv.width+10){this.x=Math.random()*cv.width;}
             }
-
-            draw() {
-                canvasContext.beginPath();
-                if (document.body.classList.contains('bit-8-mode') || document.body.classList.contains('star-mode')) {
-                    canvasContext.rect(this.x - this.size, this.y - this.size, this.size * 2, this.size * 2);
-                } else {
-                    canvasContext.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            draw(){
+                ctx.beginPath();
+                if(document.body.classList.contains('bit-8-mode')||document.body.classList.contains('star-mode')){
+                    ctx.rect(this.x-this.size,this.y-this.size,this.size*2,this.size*2);
+                }else{ctx.arc(this.x,this.y,this.size,0,Math.PI*2);}
+                let isVoid=document.body.classList.contains('void-mode'),isStar=document.body.classList.contains('star-mode');
+                if(isStar){
+                    let h=(Date.now()+this.x*2)%360;
+                    ctx.fillStyle=`hsla(${h}, 100%, 65%, ${this.opacity})`;ctx.shadowColor=`hsla(${h}, 100%, 50%, 0.9)`;
+                }else if(this.isGold){
+                    ctx.fillStyle=`rgba(255, 215, 0, ${this.opacity})`;ctx.shadowColor='rgba(255, 215, 0, 0.8)';
+                }else if(this.preservedColor){
+                    ctx.fillStyle=this.preservedColor;ctx.shadowColor=this.preservedColor;
+                }else{
+                    ctx.fillStyle=isVoid?`rgba(180, 140, 255, ${this.opacity})`:`rgba(255, 255, 255, ${this.opacity})`;
+                    ctx.shadowColor=isVoid?'rgba(138, 43, 226, 0.5)':'rgba(255, 255, 255, 0.3)';
                 }
-                let isVoid = document.body.classList.contains('void-mode');
-                let isStar = document.body.classList.contains('star-mode');
-                if (isStar) {
-                    const hue = (Date.now() + this.x * 2) % 360;
-                    canvasContext.fillStyle = `hsla(${hue}, 100%, 65%, ${this.opacity})`;
-                    canvasContext.shadowColor = `hsla(${hue}, 100%, 50%, 0.9)`;
-                } else if (this.isGold) {
-                    canvasContext.fillStyle = `rgba(255, 215, 0, ${this.opacity})`;
-                    canvasContext.shadowColor = 'rgba(255, 215, 0, 0.8)';
-                } else if (this.preservedColor) {
-                    canvasContext.fillStyle = this.preservedColor;
-                    canvasContext.shadowColor = this.preservedColor;
-                } else {
-                    canvasContext.fillStyle = isVoid ? `rgba(180, 140, 255, ${this.opacity})` : `rgba(255, 255, 255, ${this.opacity})`;
-                    canvasContext.shadowColor = isVoid ? 'rgba(138, 43, 226, 0.5)' : 'rgba(255, 255, 255, 0.3)';
-                }
-                canvasContext.shadowBlur = (document.body.classList.contains('bit-8-mode') || isStar) ? 0 : 8;
-                canvasContext.fill();
-                canvasContext.shadowBlur = 0;
+                ctx.shadowBlur=(document.body.classList.contains('bit-8-mode')||isStar)?0:8;
+                ctx.fill();ctx.shadowBlur=0;
             }
         }
 
-        for (let i = 0; i < maxParticles; i++) {
-            particleCollection.push(new Particle());
-        }
+        for(let i=0;i<maxParticles;i++)particles.push(new Particle());
 
-        let scrollVelocity = 0;
-        let targetScrollScale = 1;
-        let currentScrollScale = 1;
-        let targetScrollRotate = 0;
-        let currentScrollRotate = 0;
+        let scrollVel=0,targetScale=1,currentScale=1,targetRotate=0,currentRotate=0;
+        window.addEventListener('wheel',(e)=>{
+            scrollVel+=e.deltaY*0.15;targetScale+=e.deltaY*0.0008;targetRotate+=e.deltaY*0.015;
+            targetScale=Math.max(0.92,Math.min(1.08,targetScale));
+        },{passive:true});
 
-        window.addEventListener('wheel', (e) => {
-            scrollVelocity += e.deltaY * 0.15;
-            targetScrollScale += e.deltaY * 0.0008;
-            targetScrollRotate += e.deltaY * 0.015;
-            targetScrollScale = Math.max(0.92, Math.min(1.08, targetScrollScale));
-        }, { passive: true });
+        const tcv=document.getElementById('trailCanvas'),tctx=tcv.getContext('2d');
+        let cursorHistory=[];
+        const maxHistory=26,cursorDot=document.getElementById('cursorDot'),cursorRing=document.getElementById('cursorRing'),linksBox=document.getElementById('linksBox');
+        let mouseX=window.innerWidth/2,mouseY=window.innerHeight/2,ringX=mouseX,ringY=mouseY;
 
-        const trailCanvasElement = document.getElementById('trailCanvas');
-        const trailContext = trailCanvasElement.getContext('2d');
-        let cursorHistory = [];
-        const maxHistoryLength = 26;
-
-        const cursorDotElement = document.getElementById('cursorDot');
-        const cursorRingElement = document.getElementById('cursorRing');
-        const linksBoxElement = document.getElementById('linksBox');
-
-        let mouseX = window.innerWidth / 2;
-        let mouseY = window.innerHeight / 2;
-        let ringX = mouseX;
-        let ringY = mouseY;
-        let currentVelocity = 0;
-
-        window.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-            cursorDotElement.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
+        window.addEventListener('mousemove',(e)=>{
+            mouseX=e.clientX;mouseY=e.clientY;
+            cursorDot.style.transform=`translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
         });
 
-        let holdTimeoutReference;
-
-        window.addEventListener('mousedown', (e) => {
-            if (e.button !== 0) return;
+        let holdTimer;
+        window.addEventListener('mousedown',(e)=>{
+            if(e.button!==0)return;
             playSound('click');
-
-            const rippleElement = document.createElement('div');
-            rippleElement.className = 'click-ripple';
-            rippleElement.style.left = `${e.clientX}px`;
-            rippleElement.style.top = `${e.clientY}px`;
-            document.body.appendChild(rippleElement);
-            setTimeout(() => { rippleElement.remove(); }, 500);
-
-            for (let i = 0; i < 24; i++) {
-                const angle = Math.random() * Math.PI * 2;
-                const speed = Math.random() * 6 + 1.5;
-                let p = new Particle(e.clientX, e.clientY, Math.cos(angle) * speed, Math.sin(angle) * speed, Math.random() * 3 + 1);
-                if (!document.body.classList.contains('star-mode')) {
-                    p.preservedColor = 'rgba(255, 255, 255, 0.9)';
-                }
-                particleCollection.push(p);
+            const rip=document.createElement('div');
+            rip.className='click-ripple';rip.style.left=`${e.clientX}px`;rip.style.top=`${e.clientY}px`;
+            document.body.appendChild(rip);setTimeout(()=>rip.remove(),500);
+            for(let i=0;i<24;i++){
+                let a=Math.random()*Math.PI*2,s=Math.random()*6+1.5;
+                let p=new Particle(e.clientX,e.clientY,Math.cos(a)*s,Math.sin(a)*s,Math.random()*3+1);
+                if(!document.body.classList.contains('star-mode'))p.preservedColor='rgba(255, 255, 255, 0.9)';
+                particles.push(p);
             }
-
-            holdTimeoutReference = setTimeout(() => {
-                document.body.classList.add('is-holding');
-                playSound('holdStart');
-            }, 150);
+            holdTimer=setTimeout(()=>{document.body.classList.add('is-holding');playSound('holdStart');},150);
         });
 
-        window.addEventListener('mouseup', () => {
-            clearTimeout(holdTimeoutReference);
-            if (document.body.classList.contains('is-holding')) {
-                let capturedCount = 0;
-                particleCollection.forEach(p => {
-                    let dx = ringX - p.x;
-                    let dy = ringY - p.y;
-                    let dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist <= 37) {
-                        capturedCount++;
-                    }
-                });
-                if (capturedCount > 0) {
-                    if (capturedCount >= particleCollection.length) {
-                        playSound('allCaptured');
-                    } else {
-                        playSound('release');
-                    }
-                }
+        window.addEventListener('mouseup',()=>{
+            clearTimeout(holdTimer);
+            if(document.body.classList.contains('is-holding')){
+                let cap=0;
+                particles.forEach(p=>{if(Math.sqrt((ringX-p.x)**2+(ringY-p.y)**2)<=37)cap++;});
+                if(cap>0)playSound(cap>=particles.length?'allCaptured':'release');
             }
             document.body.classList.remove('is-holding');
         });
 
-        const konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
-        let konamiIndex = 0;
-        let konamiStage = 0;
-        let starTimeoutReference = null;
-        let heartExplodeTimeoutReference = null;
+        const konamiSeq=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','KeyB','KeyA'];
+        let konamiIdx=0,konamiStg=0,starTimer,heartTimer;
 
-        window.addEventListener('keydown', (e) => {
-            if (e.code === konamiSequence[konamiIndex]) {
-                konamiIndex++;
-                if (konamiIndex === konamiSequence.length) {
-                    konamiStage = (konamiStage + 1) % 4;
-                    clearTimeout(starTimeoutReference);
-                    clearTimeout(heartExplodeTimeoutReference);
-                    document.body.classList.remove('star-mode');
-
-                    if (konamiStage === 1) {
-                        playSound('konamiStandard');
-                        triggerZeldaHearts(false);
-                    } else if (konamiStage === 2) {
-                        playSound('konamiStandard');
-                        triggerZeldaHearts(true);
-                    } else if (konamiStage === 3) {
+        window.addEventListener('keydown',(e)=>{
+            if(e.code===konamiSeq[konamiIdx]){
+                konamiIdx++;
+                if(konamiIdx===konamiSeq.length){
+                    if(document.body.classList.contains('star-mode')){
                         playSound('konamiSpecial');
-                        document.body.classList.add('bit-8-mode', 'star-mode');
+                        clearTimeout(starTimer);clearTimeout(heartTimer);
                         triggerZeldaHearts(false);
-                    } else {
-                        playSound('konamiStandard');
-                        triggerZeldaHearts(false);
+                    }else{
+                        konamiStg=(konamiStg+1)%4;
+                        clearTimeout(starTimer);clearTimeout(heartTimer);
+                        document.body.classList.remove('star-mode');
+                        if(konamiStg===1){playSound('konamiStandard');triggerZeldaHearts(false);}
+                        else if(konamiStg===2){playSound('konamiStandard');triggerZeldaHearts(true);}
+                        else if(konamiStg===3){
+                            playSound('konamiSpecial');
+                            document.body.classList.add('bit-8-mode','star-mode');
+                            triggerZeldaHearts(false);
+                        }else{playSound('konamiStandard');triggerZeldaHearts(false);}
                     }
-                    konamiIndex = 0;
+                    konamiIdx=0;
                 }
-            } else {
-                konamiIndex = 0;
-            }
+            }else{konamiIdx=0;}
 
-            let typedBuffer = "";
-            if (e.key.length === 1) {
-                typedBuffer += e.key.toLowerCase();
-                if (typedBuffer.length > 20) {
-                    typedBuffer = typedBuffer.slice(-20);
-                }
-                if (typedBuffer.includes('void') || typedBuffer.includes('abstract') || typedBuffer.includes('zen')) {
-                    document.body.classList.remove('bit-8-mode', 'star-mode');
-                    document.body.classList.toggle('void-mode');
-                    typedBuffer = "";
-                } else if (typedBuffer.includes('cyber')) {
-                    applyTheme('linear-gradient(45deg, #050505, #00ffcc, #ff007f)', 'rgba(0, 0, 0, 0.7)');
-                    document.body.style.filter = "contrast(1.3) brightness(1.1)";
-                    typedBuffer = "";
-                } else if (typedBuffer.includes('sunset')) {
-                    applyTheme('linear-gradient(135deg, #ff512f, #dd2476, #2b1055)', 'rgba(0, 0, 0, 0.7)');
-                    document.body.style.filter = "sepia(0.3) saturate(1.4)";
-                    typedBuffer = "";
-                } else if (typedBuffer.includes('monochrome')) {
-                    applyTheme('linear-gradient(0deg, #111111, #333333, #000000)', 'rgba(0, 0, 0, 0.7)');
-                    document.body.style.filter = "grayscale(1)";
-                    typedBuffer = "";
-                } else if (typedBuffer.includes('vapor')) {
-                    applyTheme('linear-gradient(45deg, #ff71ce, #01cdfe, #b967ff)', 'rgba(0, 0, 0, 0.7)');
-                    document.body.style.filter = "hue-rotate(45deg) saturate(1.5)";
-                    typedBuffer = "";
-                } else if (typedBuffer.includes('hell')) {
-                    applyTheme('linear-gradient(135deg, #430000, #800000, #ff4500)', 'rgba(0, 0, 0, 0.7)');
-                    document.body.style.filter = "invert(0.15) hue-rotate(-20deg)";
-                    typedBuffer = "";
-                } else if (typedBuffer.includes('ice')) {
-                    applyTheme('linear-gradient(135deg, #000428, #004e92, #4ca1af)', 'rgba(0, 0, 0, 0.7)');
-                    document.body.style.filter = "hue-rotate(180deg) brightness(1.1)";
-                    typedBuffer = "";
+            let typed='';
+            if(e.key.length===1){
+                typed+=e.key.toLowerCase();
+                if(typed.length>20)typed=typed.slice(-20);
+                if(typed.includes('void')||typed.includes('abstract')||typed.includes('zen')){
+                    document.body.classList.remove('bit-8-mode','star-mode');document.body.classList.toggle('void-mode');typed='';
+                }else if(typed.includes('cyber')){
+                    applyTheme('linear-gradient(45deg, #050505, #00ffcc, #ff007f)','rgba(0, 0, 0, 0.7)');document.body.style.filter="contrast(1.3) brightness(1.1)";typed='';
+                }else if(typed.includes('sunset')){
+                    applyTheme('linear-gradient(135deg, #ff512f, #dd2476, #2b1055)','rgba(0, 0, 0, 0.7)');document.body.style.filter="sepia(0.3) saturate(1.4)";typed='';
+                }else if(typed.includes('monochrome')){
+                    applyTheme('linear-gradient(0deg, #111111, #333333, #000000)','rgba(0, 0, 0, 0.7)');document.body.style.filter="grayscale(1)";typed='';
+                }else if(typed.includes('vapor')){
+                    applyTheme('linear-gradient(45deg, #ff71ce, #01cdfe, #b967ff)','rgba(0, 0, 0, 0.7)');document.body.style.filter="hue-rotate(45deg) saturate(1.5)";typed='';
+                }else if(typed.includes('hell')){
+                    applyTheme('linear-gradient(135deg, #430000, #800000, #ff4500)','rgba(0, 0, 0, 0.7)');document.body.style.filter="invert(0.15) hue-rotate(-20deg)";typed='';
+                }else if(typed.includes('ice')){
+                    applyTheme('linear-gradient(135deg, #000428, #004e92, #4ca1af)','rgba(0, 0, 0, 0.7)');document.body.style.filter="hue-rotate(180deg) brightness(1.1)";typed='';
                 }
             }
 
-            let inputSequence = [];
-            inputSequence.push(e.code);
-            if (inputSequence.length > 5) {
-                inputSequence.shift();
-            }
-            let sequenceString = inputSequence.join(',');
-            if (sequenceString.includes('ArrowDown,ArrowRight,Space') || sequenceString.includes('KeyS,KeyD,Space')) {
-                triggerHadokenBeam(1);
-                inputSequence = [];
-            } else if (sequenceString.includes('ArrowDown,ArrowLeft,Space') || sequenceString.includes('KeyS,KeyA,Space')) {
-                triggerHadokenBeam(-1);
-                inputSequence = [];
-            }
+            let seq=[];seq.push(e.code);if(seq.length>5)seq.shift();
+            let seqStr=seq.join(',');
+            if(seqStr.includes('ArrowDown,ArrowRight,Space')||seqStr.includes('KeyS,KeyD,Space')){triggerHadokenBeam(1);seq=[];}
+            else if(seqStr.includes('ArrowDown,ArrowLeft,Space')||seqStr.includes('KeyS,KeyA,Space')){triggerHadokenBeam(-1);seq=[];}
         });
 
-        function applyTheme(gradient, boxBackground) {
-            document.body.classList.remove('void-mode', 'bit-8-mode', 'star-mode');
-            document.body.style.background = gradient;
-            document.body.style.backgroundSize = "500% 500%";
-            document.body.style.animation = "lavaGradient1 25s ease infinite";
-            linksBoxElement.style.background = boxBackground;
+        function applyTheme(grad,boxBg){
+            document.body.classList.remove('void-mode','bit-8-mode','star-mode');
+            document.body.style.background=grad;document.body.style.backgroundSize="500% 500%";
+            document.body.style.animation="lavaGradient1 25s ease infinite";linksBox.style.background=boxBg;
         }
 
-        function triggerHadokenBeam(direction) {
-            let startX = mouseX;
-            let startY = mouseY;
-            for (let i = 0; i < 70; i++) {
-                const angle = (Math.random() - 0.5) * 0.5;
-                const speed = Math.random() * 18 + 10;
-                let particleInstance = new Particle(startX, startY, (Math.cos(angle) * speed + 12) * direction, (Math.random() - 0.5) * 4, Math.random() * 5 + 2);
-                particleCollection.push(particleInstance);
+        function triggerHadokenBeam(dir){
+            for(let i=0;i<70;i++){
+                let a=(Math.random()-0.5)*0.5,s=Math.random()*18+10;
+                particles.push(new Particle(mouseX,mouseY,(Math.cos(a)*s+12)*dir,(Math.random()-0.5)*4,Math.random()*5+2));
             }
         }
 
-        const retroHeartMatrix = [
+        const heartMatrix=[
             [0,1,1,0,0,1,1,0],
             [1,1,1,1,1,1,1,1],
             [1,1,1,1,1,1,1,1],
@@ -639,315 +428,168 @@
             [0,0,0,1,1,0,0,0]
         ];
 
-        function getRetroHeartPoints(centerX, centerY, pixelSize) {
-            let points = [];
-            let rows = retroHeartMatrix.length;
-            let cols = retroHeartMatrix[0].length;
-            let startX = centerX - (cols * pixelSize) / 2;
-            let startY = centerY - (rows * pixelSize) / 2;
-            for (let r = 0; r < rows; r++) {
-                for (let c = 0; c < cols; c++) {
-                    if (retroHeartMatrix[r][c] === 1) {
-                        points.push({
-                            x: startX + c * pixelSize + pixelSize / 2,
-                            y: startY + r * pixelSize + pixelSize / 2
-                        });
+        function triggerZeldaHearts(isGold){
+            particles=[];
+            let cx=window.innerWidth/2,cy=linksBox.getBoundingClientRect().bottom+65;
+            [-130,0,130].forEach((ox,hi)=>{
+                let rows=heartMatrix.length,cols=heartMatrix[0].length,sx=cx+ox-(cols*10)/2,sy=cy-(rows*10)/2;
+                for(let r=0;r<rows;r++){
+                    for(let c=0;c<cols;c++){
+                        if(heartMatrix[r][c]===1){
+                            let p=new Particle(Math.random()*window.innerWidth,Math.random()*window.innerHeight,0,0,4.5);
+                            p.targetX=sx+c*10+5;p.targetY=sy+r*10+5;p.isHeartForm=true;p.isBurst=false;p.isCoolingDown=false;p.isGold=isGold;
+                            p.preservedColor=konamiStg===1?'rgba(255, 255, 255, 0.95)':!isGold?`hsla(${(hi*120)%360}, 100%, 65%, 0.95)`:'rgba(255, 215, 0, 0.95)';
+                            p.opacity=0.95;particles.push(p);
+                        }
                     }
                 }
-            }
-            return points;
-        }
-
-        function triggerZeldaHearts(isGold) {
-            particleCollection = [];
-            const boxRect = linksBoxElement.getBoundingClientRect();
-            let centerX = window.innerWidth / 2;
-            let centerY = boxRect.bottom + 65;
-            let offsets = [-130, 0, 130];
-            offsets.forEach((offsetX, heartIndex) => {
-                let heartPoints = getRetroHeartPoints(centerX + offsetX, centerY, 10);
-                heartPoints.forEach(pt => {
-                    let startX = Math.random() * window.innerWidth;
-                    let startY = Math.random() * window.innerHeight;
-                    let particleInstance = new Particle(startX, startY, 0, 0, 4.5);
-                    particleInstance.targetX = pt.x;
-                    particleInstance.targetY = pt.y;
-                    particleInstance.isHeartForm = true;
-                    particleInstance.isBurst = false;
-                    particleInstance.isCoolingDown = false;
-                    particleInstance.isGold = isGold;
-                    
-                    if (konamiStage === 1) {
-                        particleInstance.preservedColor = 'rgba(255, 255, 255, 0.95)';
-                    } else if (!isGold) {
-                        let hue = (heartIndex * 120) % 360;
-                        particleInstance.preservedColor = `hsla(${hue}, 100%, 65%, 0.95)`;
-                    } else {
-                        particleInstance.preservedColor = 'rgba(255, 215, 0, 0.95)';
-                    }
-                    
-                    particleInstance.opacity = 0.95;
-                    particleCollection.push(particleInstance);
-                });
             });
-            heartExplodeTimeoutReference = setTimeout(() => {
-                playSound('heartExplode');
-                document.body.classList.remove('star-mode', 'bit-8-mode');
-                konamiStage = 0;
-                particleCollection.forEach(p => {
-                    if (p.isHeartForm) {
-                        p.isHeartForm = false;
-                        let angle = Math.random() * Math.PI * 2;
-                        let speed = Math.random() * 14 + 8;
-                        p.speedX = Math.cos(angle) * speed;
-                        p.speedY = Math.sin(angle) * speed;
-                        p.isCoolingDown = true;
+            heartTimer=setTimeout(()=>{
+                playSound('heartExplode');document.body.classList.remove('star-mode','bit-8-mode');konamiStg=0;
+                particles.forEach(p=>{
+                    if(p.isHeartForm){
+                        p.isHeartForm=false;let a=Math.random()*Math.PI*2,s=Math.random()*14+8;
+                        p.speedX=Math.cos(a)*s;p.speedY=Math.sin(a)*s;p.isCoolingDown=true;
                     }
                 });
-            }, 4000);
+            },4000);
         }
 
-        function renderLoop() {
-            scrollVelocity *= 0.88;
-            targetScrollScale += (1 - targetScrollScale) * 0.1;
-            targetScrollRotate *= 0.88;
-            currentScrollScale += (targetScrollScale - currentScrollScale) * 0.15;
-            currentScrollRotate += (targetScrollRotate - currentScrollRotate) * 0.15;
-            let boxTransform = `scale(${currentScrollScale}) rotate(${currentScrollRotate}deg)`;
-            let boxBlur = Math.abs(scrollVelocity) * 0.15;
-            linksBoxElement.style.transform = boxTransform;
-            linksBoxElement.style.filter = boxBlur > 0.5 ? `blur(${Math.min(boxBlur, 4)}px)` : 'none';
+        function renderLoop(){
+            scrollVel*=0.88;targetScale+=(1-targetScale)*0.1;targetRotate*=0.88;
+            currentScale+=(targetScale-currentScale)*0.15;currentRotate+=(targetRotate-currentRotate)*0.15;
+            linksBox.style.transform=`scale(${currentScale}) rotate(${currentRotate}deg)`;
+            let blur=Math.abs(scrollVel)*0.15;linksBox.style.filter=blur>0.5?`blur(${Math.min(blur,4)}px)`:'none';
 
-            let targetX = mouseX;
-            let targetY = mouseY;
-            let velocityX = (targetX - ringX) * 0.22;
-            let velocityY = (targetY - ringY) * 0.22;
-            ringX += velocityX;
-            ringY += velocityY;
-            currentVelocity = Math.sqrt(velocityX * velocityX + velocityY * velocityY);
-            let stretch = Math.min(currentVelocity * 0.04, 0.5);
-            let angle = Math.atan2(velocityY, velocityX);
-            let scrollPulse = Math.abs(scrollVelocity) * 0.05;
+            let vx=(mouseX-ringX)*0.22,vy=(mouseY-ringY)*0.22;ringX+=vx;ringY+=vy;
+            let curVel=Math.sqrt(vx*vx+vy*vy),str=Math.min(curVel*0.04,0.5),ang=Math.atan2(vy,vx),sp=Math.abs(scrollVel)*0.05;
 
-            if (!document.body.classList.contains('is-holding')) {
-                cursorRingElement.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%, -50%) rotate(${angle}rad) scale(${1 + stretch + scrollPulse}, ${1 - stretch + scrollPulse})`;
-            } else {
-                cursorRingElement.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%, -50%)`;
+            if(!document.body.classList.contains('is-holding')){
+                cursorRing.style.transform=`translate(${ringX}px, ${ringY}px) translate(-50%, -50%) rotate(${ang}rad) scale(${1+str+sp}, ${1-str+sp})`;
+            }else{
+                cursorRing.style.transform=`translate(${ringX}px, ${ringY}px) translate(-50%, -50%)`;
             }
 
-            if (document.body.classList.contains('is-holding') && particleCollection.length > 0) {
-                let allInside = true;
-                for (let i = 0; i < particleCollection.length; i++) {
-                    let p = particleCollection[i];
-                    let dx = ringX - p.x;
-                    let dy = ringY - p.y;
-                    let dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist > 37) {
-                        allInside = false;
-                        break;
-                    }
+            if(document.body.classList.contains('is-holding')&&particles.length>0){
+                let allIn=true;
+                for(let i=0;i<particles.length;i++){
+                    if(Math.sqrt((ringX-particles[i].x)**2+(ringY-particles[i].y)**2)>37){allIn=false;break;}
                 }
-                if (allInside) {
-                    document.body.classList.add('all-contained');
-                } else {
-                    document.body.classList.remove('all-contained');
-                }
-            } else {
-                document.body.classList.remove('all-contained');
-            }
+                document.body.classList.toggle('all-contained',allIn);
+            }else{document.body.classList.remove('all-contained');}
 
-            cursorHistory.push({ x: ringX, y: ringY });
-            if (cursorHistory.length > maxHistoryLength) {
-                cursorHistory.shift();
-            }
+            cursorHistory.push({x:ringX,y:ringY});
+            if(cursorHistory.length>maxHistory)cursorHistory.shift();
 
-            canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
-            drawVoidDrift();
-
-            particleCollection.forEach(p => {
-                if (p.isHeartForm) {
-                    let deltaX = p.targetX - p.x;
-                    let deltaY = p.targetY - p.y;
-                    p.x += deltaX * 0.025;
-                    p.y += deltaY * 0.025;
-                }
-                p.update();
-                p.draw();
+            ctx.clearRect(0,0,cv.width,cv.height);drawVoidDrift();
+            particles.forEach(p=>{
+                if(p.isHeartForm){p.x+=(p.targetX-p.x)*0.025;p.y+=(p.targetY-p.y)*0.025;}
+                p.update();p.draw();
             });
 
-            trailContext.clearRect(0, 0, trailCanvasElement.width, trailCanvasElement.height);
-            if (cursorHistory.length > 1) {
-                trailContext.beginPath();
-                trailContext.moveTo(cursorHistory[0].x, cursorHistory[0].y);
-                for (let i = 1; i < cursorHistory.length; i++) {
-                    trailContext.lineTo(cursorHistory[i].x, cursorHistory[i].y);
+            tctx.clearRect(0,0,tcv.width,tcv.height);
+            if(cursorHistory.length>1){
+                tctx.beginPath();tctx.moveTo(cursorHistory[0].x,cursorHistory[0].y);
+                for(let i=1;i<cursorHistory.length;i++)tctx.lineTo(cursorHistory[i].x,cursorHistory[i].y);
+                let isVoid=document.body.classList.contains('void-mode'),isStar=document.body.classList.contains('star-mode');
+                let grad=tctx.createLinearGradient(cursorHistory[0].x,cursorHistory[0].y,ringX,ringY);
+                if(isStar){
+                    let h=Date.now()%360;
+                    grad.addColorStop(0,`hsla(${h}, 100%, 50%, 0)`);
+                    grad.addColorStop(0.5,`hsla(${(h+60)%360}, 100%, 50%, 0.5)`);
+                    grad.addColorStop(1,`hsla(${(h+120)%360}, 100%, 50%, 0.9)`);
+                }else{
+                    grad.addColorStop(0,isVoid?'rgba(138, 43, 226, 0)':'rgba(255, 255, 255, 0)');
+                    grad.addColorStop(0.5,isVoid?'rgba(138, 43, 226, 0.15)':'rgba(255, 255, 255, 0.15)');
+                    grad.addColorStop(1,isVoid?'rgba(186, 85, 211, 0.65)':'rgba(255, 255, 255, 0.65)');
                 }
-                let isVoid = document.body.classList.contains('void-mode');
-                let isStar = document.body.classList.contains('star-mode');
-                let gradient = trailContext.createLinearGradient(cursorHistory[0].x, cursorHistory[0].y, ringX, ringY);
-                if (isStar) {
-                    const hue = (Date.now()) % 360;
-                    gradient.addColorStop(0, `hsla(${hue}, 100%, 50%, 0)`);
-                    gradient.addColorStop(0.5, `hsla(${(hue + 60) % 360}, 100%, 50%, 0.5)`);
-                    gradient.addColorStop(1, `hsla(${(hue + 120) % 360}, 100%, 50%, 0.9)`);
-                } else {
-                    gradient.addColorStop(0, isVoid ? 'rgba(138, 43, 226, 0)' : 'rgba(255, 255, 255, 0)');
-                    gradient.addColorStop(0.5, isVoid ? 'rgba(138, 43, 226, 0.15)' : 'rgba(255, 255, 255, 0.15)');
-                    gradient.addColorStop(1, isVoid ? 'rgba(186, 85, 211, 0.65)' : 'rgba(255, 255, 255, 0.65)');
-                }
-                trailContext.strokeStyle = gradient;
-                trailContext.lineWidth = Math.max(4, 48 - (cursorHistory.length * 1.5) + Math.abs(scrollVelocity));
-                trailContext.lineCap = (document.body.classList.contains('bit-8-mode') || isStar) ? 'butt' : 'round';
-                trailContext.lineJoin = (document.body.classList.contains('bit-8-mode') || isStar) ? 'miter' : 'round';
-                trailContext.shadowBlur = (document.body.classList.contains('bit-8-mode') || isStar) ? 0 : 18;
-                trailContext.shadowColor = isVoid ? 'rgba(138, 43, 226, 0.5)' : 'rgba(255, 255, 255, 0.5)';
-                trailContext.stroke();
-                trailContext.shadowBlur = 0;
+                tctx.strokeStyle=grad;tctx.lineWidth=Math.max(4,48-(cursorHistory.length*1.5)+Math.abs(scrollVel));
+                tctx.lineCap=(document.body.classList.contains('bit-8-mode')||isStar)?'butt':'round';
+                tctx.lineJoin=(document.body.classList.contains('bit-8-mode')||isStar)?'miter':'round';
+                tctx.shadowBlur=(document.body.classList.contains('bit-8-mode')||isStar)?0:18;
+                tctx.shadowColor=isVoid?'rgba(138, 43, 226, 0.5)':'rgba(255, 255, 255, 0.5)';
+                tctx.stroke();tctx.shadowBlur=0;
             }
-
             requestAnimationFrame(renderLoop);
         }
-
         renderLoop();
 
-        const iconLinks = document.querySelectorAll('.icon-link');
-        iconLinks.forEach(link => {
-            link.addEventListener('mouseenter', () => {
-                document.body.classList.add('hovering');
-            });
-            link.addEventListener('mouseleave', () => {
-                document.body.classList.remove('hovering');
-            });
+        document.querySelectorAll('.icon-link').forEach(l=>{
+            l.addEventListener('mouseenter',()=>document.body.classList.add('hovering'));
+            l.addEventListener('mouseleave',()=>document.body.classList.remove('hovering'));
         });
 
-        const backgroundPresets = [
-            { gradient: "linear-gradient(-45deg, #090e17, #150917, #1f0b18, #130e21, #0a171c, #071217)", animation: "lavaGradient1 32s ease infinite" },
-            { gradient: "linear-gradient(135deg, #021a10, #052e16, #022c22, #01120c, #091c14)", animation: "lavaGradient2 28s ease infinite" },
-            { gradient: "linear-gradient(45deg, #12081c, #240a1d, #1a0f2b, #0c0817, #1a0711)", animation: "lavaGradient3 35s ease infinite" },
-            { gradient: "linear-gradient(-135deg, #07141a, #0d1e26, #161026, #1f0d1e, #0d0914)", animation: "lavaGradient4 30s ease infinite" },
-            { gradient: "linear-gradient(60deg, #020c14, #081d1c, #140d24, #210815, #0a1212)", animation: "lavaGradient1 26s ease infinite" },
-            { gradient: "linear-gradient(-60deg, #17070e, #260d1b, #190a26, #09121a, #04100c)", animation: "lavaGradient2 34s ease infinite" },
-            { gradient: "linear-gradient(90deg, #0a1412, #18091a, #290e1b, #121029, #050b12)", animation: "lavaGradient3 38s ease infinite" },
-            { gradient: "linear-gradient(0deg, #070b14, #120917, #1f0e1c, #0e1c17, #03080d)", animation: "lavaGradient4 29s ease infinite" },
-            { gradient: "linear-gradient(-30deg, #0f0817, #1c0d12, #0a1a14, #120f26, #06090f)", animation: "lavaGradient1 31s ease infinite" },
-            { gradient: "linear-gradient(120deg, #051412, #10081c, #260b14, #0b1721, #080c12)", animation: "lavaGradient2 33s ease infinite" }
+        const presets=[
+            {g:"linear-gradient(-45deg, #090e17, #150917, #1f0b18, #130e21, #0a171c, #071217)",a:"lavaGradient1 32s ease infinite"},
+            {g:"linear-gradient(135deg, #021a10, #052e16, #022c22, #01120c, #091c14)",a:"lavaGradient2 28s ease infinite"},
+            {g:"linear-gradient(45deg, #12081c, #240a1d, #1a0f2b, #0c0817, #1a0711)",a:"lavaGradient3 35s ease infinite"},
+            {g:"linear-gradient(-135deg, #07141a, #0d1e26, #161026, #1f0d1e, #0d0914)",a:"lavaGradient4 30s ease infinite"},
+            {g:"linear-gradient(60deg, #020c14, #081d1c, #140d24, #210815, #0a1212)",a:"lavaGradient1 26s ease infinite"},
+            {g:"linear-gradient(-60deg, #17070e, #260d1b, #190a26, #09121a, #04100c)",a:"lavaGradient2 34s ease infinite"},
+            {g:"linear-gradient(90deg, #0a1412, #18091a, #290e1b, #121029, #050b12)",a:"lavaGradient3 38s ease infinite"},
+            {g:"linear-gradient(0deg, #070b14, #120917, #1f0e1c, #0e1c17, #03080d)",a:"lavaGradient4 29s ease infinite"},
+            {g:"linear-gradient(-30deg, #0f0817, #1c0d12, #0a1a14, #120f26, #06090f)",a:"lavaGradient1 31s ease infinite"},
+            {g:"linear-gradient(120deg, #051412, #10081c, #260b14, #0b1721, #080c12)",a:"lavaGradient2 33s ease infinite"}
         ];
+        const pr=presets[Math.floor(Math.random()*presets.length)];
+        document.body.style.background=pr.g;document.body.style.backgroundSize="500% 500%";document.body.style.animation=pr.a;
 
-        const selectedPreset = backgroundPresets[Math.floor(Math.random() * backgroundPresets.length)];
-        const bodyElement = document.body;
-        bodyElement.style.background = selectedPreset.gradient;
-        bodyElement.style.backgroundSize = "500% 500%";
-        bodyElement.style.animation = selectedPreset.animation;
-
-        let showCursor = true;
-        let isTypingDone = false;
-        let charIndex = 0;
-
-        function getFullTargetString() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            return `[${hours}:${minutes}:${seconds}] martin@nartim:~$ `;
+        let showCur=true,isTypedDone=false,charIdx=0;
+        function getFullStr(){
+            let now=new Date();
+            return `[${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}] martin@nartim:~$ `;
         }
-
-        let fullString = getFullTargetString();
-
-        function typeTerminal() {
-            fullString = getFullTargetString();
-            if (charIndex <= fullString.length) {
-                document.title = fullString.slice(0, charIndex) + (showCursor ? "_" : " ");
-                charIndex++;
-                setTimeout(typeTerminal, 80);
-            } else {
-                isTypingDone = true;
-            }
+        let fullStr=getFullStr();
+        function typeTerm(){
+            fullStr=getFullStr();
+            if(charIdx<=fullStr.length){
+                document.title=fullStr.slice(0,charIdx)+(showCur?"_":" ");
+                charIdx++;setTimeout(typeTerm,80);
+            }else{isTypedDone=true;}
         }
+        setTimeout(typeTerm,300);
+        setInterval(()=>{
+            showCur=!showCur;
+            if(isTypedDone)document.title=getFullStr()+(showCur?"_":" ");
+        },1000);
 
-        setTimeout(typeTerminal, 300);
-
-        setInterval(() => {
-            showCursor = !showCursor;
-            if (isTypingDone) {
-                document.title = getFullTargetString() + (showCursor ? "_" : " ");
-            }
-        }, 1000);
-
-        if ('getBattery' in navigator) {
-            navigator.getBattery().then(batteryManager => {
-                const widgetElement = document.getElementById('batteryWidget');
-                const fillElement = document.getElementById('batteryFill');
-                const textElement = document.getElementById('batteryText');
-
-                function updateBatteryUI() {
-                    const level = Math.round(batteryManager.level * 100);
-                    fillElement.style.width = level + '%';
-                    textElement.textContent = level + '%';
-                    if (batteryManager.charging) {
-                        widgetElement.classList.add('charging');
-                    } else {
-                        widgetElement.classList.remove('charging');
-                    }
-                    widgetElement.style.display = 'flex';
+        if('getBattery' in navigator){
+            navigator.getBattery().then(bm=>{
+                const w=document.getElementById('batteryWidget'),f=document.getElementById('batteryFill'),txt=document.getElementById('batteryText');
+                function upd(){
+                    let lvl=Math.round(bm.level*100);
+                    f.style.width=lvl+'%';txt.textContent=lvl+'%';
+                    w.classList.toggle('charging',bm.charging);
+                    w.style.display='flex';
                 }
-
-                updateBatteryUI();
-                batteryManager.addEventListener('levelchange', updateBatteryUI);
-                batteryManager.addEventListener('chargingchange', updateBatteryUI);
-            }).catch(() => {});
+                upd();bm.addEventListener('levelchange',upd);bm.addEventListener('chargingchange',upd);
+            }).catch(()=>{});
         }
 
-        let idleTimerReference = null;
-        let idleActive = false;
-        let idleTypingTimeoutReference = null;
-
-        const idleMessageElement = document.getElementById('idleMessage');
-        const idleTextElement = document.getElementById('idleText');
-
-        function typeIdleMessage(text, index = 0) {
-            if (index === 0) {
-                idleTextElement.textContent = '';
-            }
-            if (index < text.length) {
-                idleTextElement.textContent += text.charAt(index);
-                idleTypingTimeoutReference = setTimeout(() => {
-                    typeIdleMessage(text, index + 1);
-                }, 70);
+        let idleTimer,idleActive=false,idleTypingTimer;
+        const idleMsg=document.getElementById('idleMessage'),idleTxt=document.getElementById('idleText');
+        function typeIdle(txt,i=0){
+            if(i===0)idleTxt.textContent='';
+            if(i<txt.length){
+                idleTxt.textContent+=txt.charAt(i);
+                idleTypingTimer=setTimeout(()=>typeIdle(txt,i+1),70);
             }
         }
-
-        function enterIdleMode() {
-            idleActive = true;
-            document.body.classList.add('idle-mode');
-            let message = 'bist du noch da?';
-            clearTimeout(idleTypingTimeoutReference);
-            typeIdleMessage(message);
+        function enterIdle(){
+            idleActive=true;document.body.classList.add('idle-mode');
+            clearTimeout(idleTypingTimer);typeIdle('bist du noch da?');
         }
-
-        function leaveIdleMode() {
-            if (!idleActive) return;
-            idleActive = false;
-            clearTimeout(idleTypingTimeoutReference);
-            document.body.classList.remove('idle-mode');
+        function leaveIdle(){
+            if(!idleActive)return;
+            idleActive=false;clearTimeout(idleTypingTimer);document.body.classList.remove('idle-mode');
         }
-
-        function resetIdleTimer() {
-            clearTimeout(idleTimerReference);
-            clearTimeout(idleTypingTimeoutReference);
-            if (idleActive) {
-                leaveIdleMode();
-            }
-            idleTimerReference = setTimeout(() => {
-                enterIdleMode();
-            }, 40000);
+        function resetIdle(){
+            clearTimeout(idleTimer);clearTimeout(idleTypingTimer);
+            if(idleActive)leaveIdle();
+            idleTimer=setTimeout(()=>enterIdle(),40000);
         }
-
-        const idleEvents = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'wheel', 'scroll'];
-        idleEvents.events = idleEvents.forEach(eventName => {
-            window.addEventListener(eventName, resetIdleTimer, { passive: true });
-        });
-
-        resetIdleTimer();
+        ['mousemove','mousedown','keydown','touchstart','wheel','scroll'].forEach(ev=>window.addEventListener(ev,resetIdle,{passive:true}));
+        resetIdle();
     </script>
 </body>
 </html>

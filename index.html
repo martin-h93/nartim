@@ -46,6 +46,12 @@
         .mailto-link {
             display: inline-block;
             text-decoration: none;
+            outline: none;
+        }
+
+        .mailto-link:focus,
+        .mailto-link:active {
+            outline: none;
         }
 
         .icon-wrapper {
@@ -65,9 +71,11 @@
             height: 100%;
             object-fit: contain;
         }
+
         .icon-hover {
             display: none;
         }
+
         .mailto-link:hover .icon-default {
             display: none;
         }

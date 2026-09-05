@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>nartim.de</title>
     <meta property="og:title" content="nartim.de">
-    <meta property="og:description" content="Persönliche Landingpage von Martin">
+    <meta property="og:description" content="landing page">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://nartim.de">
     <style>
@@ -420,6 +420,9 @@
                 } else if (this.isGold) {
                     canvasContext.fillStyle = `rgba(255, 215, 0, ${this.opacity})`;
                     canvasContext.shadowColor = 'rgba(255, 215, 0, 0.8)';
+                } else if (this.preservedColor) {
+                    canvasContext.fillStyle = this.preservedColor;
+                    canvasContext.shadowColor = this.preservedColor;
                 } else {
                     canvasContext.fillStyle = isVoid ? `rgba(180, 140, 255, ${this.opacity})` : `rgba(255, 255, 255, ${this.opacity})`;
                     canvasContext.shadowColor = isVoid ? 'rgba(138, 43, 226, 0.5)' : 'rgba(255, 255, 255, 0.3)';
@@ -484,7 +487,11 @@
             for (let i = 0; i < 24; i++) {
                 const angle = Math.random() * Math.PI * 2;
                 const speed = Math.random() * 6 + 1.5;
-                particleCollection.push(new Particle(e.clientX, e.clientY, Math.cos(angle) * speed, Math.sin(angle) * speed, Math.random() * 3 + 1));
+                let p = new Particle(e.clientX, e.clientY, Math.cos(angle) * speed, Math.sin(angle) * speed, Math.random() * 3 + 1);
+                if (!document.body.classList.contains('star-mode')) {
+                    p.preservedColor = 'rgba(255, 255, 255, 0.9)';
+                }
+                particleCollection.push(p);
             }
 
             holdTimeoutReference = setTimeout(() => {
@@ -657,7 +664,7 @@
             let centerX = window.innerWidth / 2;
             let centerY = boxRect.bottom + 65;
             let offsets = [-130, 0, 130];
-            offsets.forEach(offsetX => {
+            offsets.forEach((offsetX, heartIndex) => {
                 let heartPoints = getRetroHeartPoints(centerX + offsetX, centerY, 10);
                 heartPoints.forEach(pt => {
                     let startX = Math.random() * window.innerWidth;
@@ -669,6 +676,16 @@
                     particleInstance.isBurst = false;
                     particleInstance.isCoolingDown = false;
                     particleInstance.isGold = isGold;
+                    
+                    if (konamiStage === 1) {
+                        particleInstance.preservedColor = 'rgba(255, 255, 255, 0.95)';
+                    } else if (!isGold) {
+                        let hue = (heartIndex * 120) % 360;
+                        particleInstance.preservedColor = `hsla(${hue}, 100%, 65%, 0.95)`;
+                    } else {
+                        particleInstance.preservedColor = 'rgba(255, 215, 0, 0.95)';
+                    }
+                    
                     particleInstance.opacity = 0.95;
                     particleCollection.push(particleInstance);
                 });
@@ -926,7 +943,7 @@
         }
 
         const idleEvents = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'wheel', 'scroll'];
-        idleEvents.forEach(eventName => {
+        idleEvents.events = idleEvents.forEach(eventName => {
             window.addEventListener(eventName, resetIdleTimer, { passive: true });
         });
 

@@ -104,5 +104,59 @@
         </div>
     </a>
 
+    <script>
+        const text = "nartim.de";
+        const emojiFrames = [
+            " ( °-°) ",
+            " ( °-°)" ,
+            " (  °-°)",
+            " (   °-)",
+            " (    °)",
+            " (     )",
+            " (°    )",
+            " (-°   )",
+            " (°-°  )"
+        ];
+        
+        let step = 0;
+        let isDeleting = false;
+        let emojiIndex = 0;
+        let emojiInterval = null;
+
+        function animateTitle() {
+            if (!isDeleting) {
+                document.title = text.substring(0, step + 1);
+                step++;
+
+                if (step === text.length) {
+                    emojiInterval = setInterval(() => {
+                        document.title = text + emojiFrames[emojiIndex];
+                        emojiIndex = (emojiIndex + 1) % emojiFrames.length;
+                    }, 100);
+
+                    setTimeout(() => {
+                        clearInterval(emojiInterval);
+                        isDeleting = true;
+                        animateTitle();
+                    }, 2500);
+                    return;
+                }
+            } else {
+                document.title = text.substring(0, step - 1);
+                step--;
+
+                if (step === 0) {
+                    isDeleting = false;
+                    setTimeout(animateTitle, 500);
+                    return;
+                }
+            }
+
+            setTimeout(animateTitle, isDeleting ? 40 : 80);
+        }
+
+        animateTitle();
+    </script>
+
 </body>
 </html>

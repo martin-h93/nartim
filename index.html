@@ -53,6 +53,13 @@
             75% { filter: hue-rotate(270deg) saturate(4) brightness(1.5); }
             100% { filter: hue-rotate(360deg) saturate(3) brightness(1.3); }
         }
+        @keyframes rainbowBg {
+            0% { filter: hue-rotate(0deg) saturate(2) brightness(0.6); background-color: #ff0055; }
+            25% { filter: hue-rotate(90deg) saturate(2.5) brightness(0.7); background-color: #00ff55; }
+            50% { filter: hue-rotate(180deg) saturate(2) brightness(0.6); background-color: #0055ff; }
+            75% { filter: hue-rotate(270deg) saturate(2.5) brightness(0.7); background-color: #ff00ff; }
+            100% { filter: hue-rotate(360deg) saturate(2) brightness(0.6); background-color: #ff0055; }
+        }
         html, body {
             width: 100%;
             min-height: 100vh;
@@ -99,19 +106,21 @@
             border-radius: 0 !important;
             border: 4px solid #fff !important;
             box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65) !important;
+            transition: transform 0.1s ease-out, filter 0.1s ease-out, background 0.3s ease, border-color 0.3s ease, border-radius 0s, border 0s;
         }
         body.bit-8-mode .icon-wrapper {
-            filter: invert(1) brightness(200%) !important;
+            filter: var(--icon-filter) !important;
         }
         body.bit-8-mode .custom-cursor {
             border-radius: 0 !important;
         }
         body.star-mode {
-            animation: rainbowChaos 0.4s linear infinite !important;
+            animation: rainbowBg 1s linear infinite !important;
         }
         body.star-mode .links-container {
-            animation: rainbowChaos 0.2s linear infinite !important;
+            animation: none !important;
             border-color: #ff00ff !important;
+            animation: rainbowChaos 0.2s linear infinite !important;
         }
         #particleCanvas, #voidCanvas {
             position: fixed;
@@ -230,7 +239,7 @@
             padding: 32px 48px;
             border-radius: 28px;
             box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65);
-            transition: transform 0.1s ease-out, filter 0.1s ease-out, background 0.3s ease, border-color 0.3s ease;
+            transition: transform 0.1s ease-out, filter 0.1s ease-out, background 0.3s ease, border-color 0.3s ease, border-radius 0.3s ease, border 0.3s ease;
             max-width: 100%;
         }
         .icon-link, .icon-link:hover, .icon-link:focus, .icon-link:active, .icon-link:visited {
@@ -333,20 +342,6 @@
             background: #4ade80;
             box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
         }
-        .gyro-btn {
-            position: relative;
-            z-index: 2;
-            display: none;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff;
-            padding: 10px 16px;
-            border-radius: 12px;
-            font-size: 12px;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
         .idle-message {
             position: fixed;
             left: 50%;
@@ -430,8 +425,6 @@
     <div class="custom-cursor cursor-dot" id="cursorDot"></div>
     <div class="custom-cursor cursor-ring" id="cursorRing"></div>
 
-    <button class="gyro-btn" id="gyroBtn">Neigungsscrollen aktivieren</button>
-
     <div class="links-container" id="linksBox">
         <a href="mailto:martin@hoelters.online" class="icon-link">
             <div class="icon-wrapper">
@@ -479,33 +472,160 @@
     </div>
 
     <script>
-        const canvas = document.getElementById('particleCanvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-        const particleCount = 35;
+        let audioContextInstance = null;
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            const tCanvas = document.getElementById('trailCanvas');
-            tCanvas.width = window.innerWidth;
-            tCanvas.height = window.innerHeight;
-            const vCanvas = document.getElementById('voidCanvas');
-            vCanvas.width = window.innerWidth;
-            vCanvas.height = window.innerHeight;
+        function getAudioContext() {
+            if (!audioContextInstance) {
+                audioContextInstance = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioContextInstance.state === 'suspended') {
+                audioContextInstance.resume();
+            }
+            return audioContextInstance;
         }
 
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+        function playClickSound() {
+            try {
+                const ctx = getAudioContext();
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(450, ctx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.08);
+                gainNode.gain.setValueAtTime(0.12, ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                oscillator.start();
+                oscillator.stop(ctx.currentTime + 0.08);
+            } catch (error) {}
+        }
 
-        const vCanvas = document.getElementById('voidCanvas');
-        const vCtx = vCanvas.getContext('2d');
-        let voidOrbs = [];
+        function playHoldStartSound() {
+            try {
+                const ctx = getAudioContext();
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(220, ctx.currentTime);
+                oscillator.frequency.linearRampToValueAtTime(330, ctx.currentTime + 0.15);
+                gainNode.gain.setValueAtTime(0.01, ctx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 0.15);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                oscillator.start();
+                oscillator.stop(ctx.currentTime + 0.2);
+            } catch (error) {}
+        }
+
+        function playLongReleaseSound() {
+            try {
+                const ctx = getAudioContext();
+                const currentTime = ctx.currentTime;
+                [523.25, 659.25, 783.99].forEach((freq, index) => {
+                    const oscillator = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+                    oscillator.type = 'triangle';
+                    oscillator.frequency.setValueAtTime(freq, currentTime + index * 0.06);
+                    gainNode.gain.setValueAtTime(0.001, currentTime + index * 0.06);
+                    gainNode.gain.linearRampToValueAtTime(0.1, currentTime + index * 0.06 + 0.02);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, currentTime + index * 0.06 + 0.3);
+                    oscillator.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+                    oscillator.start(currentTime + index * 0.06);
+                    oscillator.stop(currentTime + index * 0.06 + 0.3);
+                });
+            } catch (error) {}
+        }
+
+        function playKonamiStandardSound() {
+            try {
+                const ctx = getAudioContext();
+                const currentTime = ctx.currentTime;
+                const notes = [330, 392, 659, 523, 587, 784];
+                notes.forEach((freq, index) => {
+                    const oscillator = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+                    oscillator.type = 'square';
+                    oscillator.frequency.setValueAtTime(freq, currentTime + index * 0.07);
+                    gainNode.gain.setValueAtTime(0.06, currentTime + index * 0.07);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, currentTime + index * 0.07 + 0.09);
+                    oscillator.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+                    oscillator.start(currentTime + index * 0.07);
+                    oscillator.stop(currentTime + index * 0.07 + 0.09);
+                });
+            } catch (error) {}
+        }
+
+        function playKonamiSpecialSound() {
+            try {
+                const ctx = getAudioContext();
+                const currentTime = ctx.currentTime;
+                const sweetNotes = [587.33, 659.25, 880.00, 987.77, 1318.51];
+                sweetNotes.forEach((freq, index) => {
+                    const oscillator = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(freq, currentTime + index * 0.08);
+                    gainNode.gain.setValueAtTime(0.08, currentTime + index * 0.08);
+                    gainNode.gain.exponentialRampToValueAtTime(0.0001, currentTime + index * 0.08 + 0.25);
+                    oscillator.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+                    oscillator.start(currentTime + index * 0.08);
+                    oscillator.stop(currentTime + index * 0.08 + 0.25);
+                });
+            } catch (error) {}
+        }
+
+        function playHeartExplodeSound() {
+            try {
+                const ctx = getAudioContext();
+                const currentTime = ctx.currentTime;
+                const explodeNotes = [784.00, 659.25, 523.25, 392.00, 261.63];
+                explodeNotes.forEach((freq, index) => {
+                    const oscillator = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+                    oscillator.type = 'sawtooth';
+                    oscillator.frequency.setValueAtTime(freq, currentTime + index * 0.05);
+                    gainNode.gain.setValueAtTime(0.05, currentTime + index * 0.05);
+                    gainNode.gain.exponentialRampToValueAtTime(0.0001, currentTime + index * 0.05 + 0.08);
+                    oscillator.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+                    oscillator.start(currentTime + index * 0.05);
+                    oscillator.stop(currentTime + index * 0.05 + 0.08);
+                });
+            } catch (error) {}
+        }
+
+        const canvasElement = document.getElementById('particleCanvas');
+        const canvasContext = canvasElement.getContext('2d');
+        let particleCollection = [];
+        const maxParticles = 35;
+
+        function handleResize() {
+            canvasElement.width = window.innerWidth;
+            canvasElement.height = window.innerHeight;
+            const trailCanvasElement = document.getElementById('trailCanvas');
+            trailCanvasElement.width = window.innerWidth;
+            trailCanvasElement.height = window.innerHeight;
+            const voidCanvasElement = document.getElementById('voidCanvas');
+            voidCanvasElement.width = window.innerWidth;
+            voidCanvasElement.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', handleResize);
+        handleResize();
+
+        const voidCanvasElement = document.getElementById('voidCanvas');
+        const voidContext = voidCanvasElement.getContext('2d');
+        let voidOrbCollection = [];
 
         for (let i = 0; i < 18; i++) {
-            voidOrbs.push({
-                x: Math.random() * vCanvas.width,
-                y: Math.random() * vCanvas.height,
+            voidOrbCollection.push({
+                x: Math.random() * voidCanvasElement.width,
+                y: Math.random() * voidCanvasElement.height,
                 radius: Math.random() * 140 + 60,
                 speedX: (Math.random() - 0.5) * 0.4,
                 speedY: (Math.random() - 0.5) * 0.4,
@@ -517,23 +637,23 @@
             if (!document.body.classList.contains('void-mode')) {
                 return;
             }
-            vCtx.fillStyle = 'rgba(3, 3, 5, 0.25)';
-            vCtx.fillRect(0, 0, vCanvas.width, vCanvas.height);
-            voidOrbs.forEach(orb => {
+            voidContext.fillStyle = 'rgba(3, 3, 5, 0.25)';
+            voidContext.fillRect(0, 0, voidCanvasElement.width, voidCanvasElement.height);
+            voidOrbCollection.forEach(orb => {
                 orb.x += orb.speedX;
                 orb.y += orb.speedY;
-                if (orb.x < -150) orb.x = vCanvas.width + 150;
-                if (orb.x > vCanvas.width + 150) orb.x = -150;
-                if (orb.y < -150) orb.y = vCanvas.height + 150;
-                if (orb.y > vCanvas.height + 150) orb.y = -150;
-                let grad = vCtx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, orb.radius);
-                grad.addColorStop(0, `rgba(138, 43, 226, ${orb.alpha})`);
-                grad.addColorStop(0.5, `rgba(75, 0, 130, ${orb.alpha * 0.5})`);
-                grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-                vCtx.fillStyle = grad;
-                vCtx.beginPath();
-                vCtx.arc(orb.x, orb.y, orb.radius, 0, Math.PI * 2);
-                vCtx.fill();
+                if (orb.x < -150) orb.x = voidCanvasElement.width + 150;
+                if (orb.x > voidCanvasElement.width + 150) orb.x = -150;
+                if (orb.y < -150) orb.y = voidCanvasElement.height + 150;
+                if (orb.y > voidCanvasElement.height + 150) orb.y = -150;
+                let gradient = voidContext.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, orb.radius);
+                gradient.addColorStop(0, `rgba(138, 43, 226, ${orb.alpha})`);
+                gradient.addColorStop(0.5, `rgba(75, 0, 130, ${orb.alpha * 0.5})`);
+                gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                voidContext.fillStyle = gradient;
+                voidContext.beginPath();
+                voidContext.arc(orb.x, orb.y, orb.radius, 0, Math.PI * 2);
+                voidContext.fill();
             });
         }
 
@@ -553,8 +673,8 @@
             }
 
             reset() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
+                this.x = Math.random() * canvasElement.width;
+                this.y = Math.random() * canvasElement.height;
                 this.size = Math.random() * 4 + 1.5;
                 this.speedY = -(Math.random() * 0.4 + 0.2);
                 this.speedX = (Math.random() - 0.5) * 0.3;
@@ -589,66 +709,65 @@
                     this.x += this.speedX;
                 }
 
-                let dx = mouseX - this.x;
-                let dy = mouseY - this.y;
-                let distance = Math.sqrt(dx * dx + dy * dy);
+                let deltaX = mouseX - this.x;
+                let deltaY = mouseY - this.y;
+                let distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
                 let maxDistance = 120;
                 let isHolding = document.body.classList.contains('is-holding');
 
                 if (isHolding) {
-                    let dist = distance;
-                    if (dist > 5) {
-                        this.x += (dx / dist) * 2.5;
-                        this.y += (dy / dist) * 2.5;
+                    if (distance > 5) {
+                        this.x += (deltaX / distance) * 2.5;
+                        this.y += (deltaY / distance) * 2.5;
                     }
                 } else if (distance < maxDistance) {
                     let force = 1 - (distance / maxDistance);
-                    let angle = Math.atan2(dy, dx);
+                    let angle = Math.atan2(deltaY, deltaX);
                     this.x -= Math.cos(angle) * force * 3;
                     this.y -= Math.sin(angle) * force * 3;
                 }
 
                 if (this.y < -10) {
-                    this.y = canvas.height + 10;
-                    this.x = Math.random() * canvas.width;
+                    this.y = canvasElement.height + 10;
+                    this.x = Math.random() * canvasElement.width;
                 }
-                if (this.y > canvas.height + 10) {
+                if (this.y > canvasElement.height + 10) {
                     this.y = -10;
-                    this.x = Math.random() * canvas.width;
+                    this.x = Math.random() * canvasElement.width;
                 }
-                if (this.x < -10 || this.x > canvas.width + 10) {
-                    this.x = Math.random() * canvas.width;
+                if (this.x < -10 || this.x > canvasElement.width + 10) {
+                    this.x = Math.random() * canvasElement.width;
                 }
             }
 
             draw() {
-                ctx.beginPath();
+                canvasContext.beginPath();
                 if (document.body.classList.contains('bit-8-mode') || document.body.classList.contains('star-mode')) {
-                    ctx.rect(this.x - this.size, this.y - this.size, this.size * 2, this.size * 2);
+                    canvasContext.rect(this.x - this.size, this.y - this.size, this.size * 2, this.size * 2);
                 } else {
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    canvasContext.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 }
                 let isVoid = document.body.classList.contains('void-mode');
                 let isStar = document.body.classList.contains('star-mode');
                 if (isStar) {
                     const hue = (Date.now() + this.x * 2) % 360;
-                    ctx.fillStyle = `hsla(${hue}, 100%, 65%, ${this.opacity})`;
-                    ctx.shadowColor = `hsla(${hue}, 100%, 50%, 0.9)`;
+                    canvasContext.fillStyle = `hsla(${hue}, 100%, 65%, ${this.opacity})`;
+                    canvasContext.shadowColor = `hsla(${hue}, 100%, 50%, 0.9)`;
                 } else if (this.isGold) {
-                    ctx.fillStyle = `rgba(255, 215, 0, ${this.opacity})`;
-                    ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
+                    canvasContext.fillStyle = `rgba(255, 215, 0, ${this.opacity})`;
+                    canvasContext.shadowColor = 'rgba(255, 215, 0, 0.8)';
                 } else {
-                    ctx.fillStyle = isVoid ? `rgba(180, 140, 255, ${this.opacity})` : `rgba(255, 255, 255, ${this.opacity})`;
-                    ctx.shadowColor = isVoid ? 'rgba(138, 43, 226, 0.5)' : 'rgba(255, 255, 255, 0.3)';
+                    canvasContext.fillStyle = isVoid ? `rgba(180, 140, 255, ${this.opacity})` : `rgba(255, 255, 255, ${this.opacity})`;
+                    canvasContext.shadowColor = isVoid ? 'rgba(138, 43, 226, 0.5)' : 'rgba(255, 255, 255, 0.3)';
                 }
-                ctx.shadowBlur = (document.body.classList.contains('bit-8-mode') || isStar) ? 0 : 8;
-                ctx.fill();
-                ctx.shadowBlur = 0;
+                canvasContext.shadowBlur = (document.body.classList.contains('bit-8-mode') || isStar) ? 0 : 8;
+                canvasContext.fill();
+                canvasContext.shadowBlur = 0;
             }
         }
 
-        for (let i = 0; i < particleCount; i++) {
-            particles.push(new Particle());
+        for (let i = 0; i < maxParticles; i++) {
+            particleCollection.push(new Particle());
         }
 
         let scrollVelocity = 0;
@@ -664,14 +783,14 @@
             targetScrollScale = Math.max(0.92, Math.min(1.08, targetScrollScale));
         }, { passive: true });
 
-        const tCanvas = document.getElementById('trailCanvas');
-        const tCtx = tCanvas.getContext('2d');
-        let history = [];
+        const trailCanvasElement = document.getElementById('trailCanvas');
+        const trailContext = trailCanvasElement.getContext('2d');
+        let cursorHistory = [];
         const maxHistoryLength = 26;
 
-        const dot = document.getElementById('cursorDot');
-        const ring = document.getElementById('cursorRing');
-        const linksBox = document.getElementById('linksBox');
+        const cursorDotElement = document.getElementById('cursorDot');
+        const cursorRingElement = document.getElementById('cursorRing');
+        const linksBoxElement = document.getElementById('linksBox');
 
         let mouseX = window.innerWidth / 2;
         let mouseY = window.innerHeight / 2;
@@ -682,61 +801,85 @@
         window.addEventListener('mousemove', (e) => {
             mouseX = e.clientX;
             mouseY = e.clientY;
-            dot.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
+            cursorDotElement.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
         });
 
-        let holdTimeout;
+        let holdTimeoutReference;
 
         window.addEventListener('mousedown', (e) => {
             if (e.button !== 0) return;
-            const ripple = document.createElement('div');
-            ripple.className = 'click-ripple';
-            ripple.style.left = `${e.clientX}px`;
-            ripple.style.top = `${e.clientY}px`;
-            document.body.appendChild(ripple);
-            setTimeout(() => { ripple.remove(); }, 500);
+            playClickSound();
+
+            const rippleElement = document.createElement('div');
+            rippleElement.className = 'click-ripple';
+            rippleElement.style.left = `${e.clientX}px`;
+            rippleElement.style.top = `${e.clientY}px`;
+            document.body.appendChild(rippleElement);
+            setTimeout(() => { rippleElement.remove(); }, 500);
 
             for (let i = 0; i < 24; i++) {
                 const angle = Math.random() * Math.PI * 2;
                 const speed = Math.random() * 6 + 1.5;
-                particles.push(new Particle(e.clientX, e.clientY, Math.cos(angle) * speed, Math.sin(angle) * speed, Math.random() * 3 + 1));
+                particleCollection.push(new Particle(e.clientX, e.clientY, Math.cos(angle) * speed, Math.sin(angle) * speed, Math.random() * 3 + 1));
             }
 
-            holdTimeout = setTimeout(() => {
+            holdTimeoutReference = setTimeout(() => {
                 document.body.classList.add('is-holding');
+                playHoldStartSound();
             }, 150);
         });
 
         window.addEventListener('mouseup', () => {
-            clearTimeout(holdTimeout);
+            clearTimeout(holdTimeoutReference);
+            if (document.body.classList.contains('is-holding')) {
+                let capturedCount = 0;
+                particleCollection.forEach(p => {
+                    let dx = ringX - p.x;
+                    let dy = ringY - p.y;
+                    let dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist <= 37) {
+                        capturedCount++;
+                    }
+                });
+                if (capturedCount > 0) {
+                    playLongReleaseSound();
+                }
+            }
             document.body.classList.remove('is-holding');
         });
 
-        const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
+        const konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
         let konamiIndex = 0;
         let konamiStage = 0;
-        let starTimeout = null;
+        let starTimeoutReference = null;
+        let heartExplodeTimeoutReference = null;
 
         window.addEventListener('keydown', (e) => {
-            if (e.code === konamiCode[konamiIndex]) {
+            if (e.code === konamiSequence[konamiIndex]) {
                 konamiIndex++;
-                if (konamiIndex === konamiCode.length) {
+                if (konamiIndex === konamiSequence.length) {
                     konamiStage = (konamiStage + 1) % 4;
-                    clearTimeout(starTimeout);
+                    clearTimeout(starTimeoutReference);
+                    clearTimeout(heartExplodeTimeoutReference);
                     document.body.classList.remove('star-mode');
 
                     if (konamiStage === 1) {
+                        playKonamiStandardSound();
                         triggerZeldaHearts(false);
                     } else if (konamiStage === 2) {
+                        playKonamiStandardSound();
                         triggerZeldaHearts(true);
                     } else if (konamiStage === 3) {
+                        playKonamiSpecialSound();
                         document.body.classList.add('bit-8-mode', 'star-mode');
                         triggerZeldaHearts(false);
-                        starTimeout = setTimeout(() => {
-                            document.body.classList.remove('star-mode', 'bit-8-mode');
+                        starTimeoutReference = setTimeout(() => {
+                            document.body.classList.remove('star-mode');
+                            document.body.classList.remove('bit-8-mode');
                             konamiStage = 0;
-                        }, 10000);
+                        }, 5000);
                     } else {
+                        playKonamiStandardSound();
                         document.body.classList.remove('bit-8-mode');
                         triggerZeldaHearts(false);
                     }
@@ -757,22 +900,22 @@
                     document.body.classList.toggle('void-mode');
                     typedBuffer = "";
                 } else if (typedBuffer.includes('cyber')) {
-                    applyTheme('linear-gradient(45deg, #050505, #00ffcc, #ff007f)', '#000');
+                    applyTheme('linear-gradient(45deg, #050505, #00ffcc, #ff007f)', 'rgba(0, 0, 0, 0.7)');
                     typedBuffer = "";
                 } else if (typedBuffer.includes('sunset')) {
-                    applyTheme('linear-gradient(135deg, #ff512f, #dd2476, #2b1055)', '#11051c');
+                    applyTheme('linear-gradient(135deg, #ff512f, #dd2476, #2b1055)', 'rgba(0, 0, 0, 0.7)');
                     typedBuffer = "";
                 } else if (typedBuffer.includes('monochrome')) {
-                    applyTheme('linear-gradient(0deg, #111111, #333333, #000000)', '#0a0a0a');
+                    applyTheme('linear-gradient(0deg, #111111, #333333, #000000)', 'rgba(0, 0, 0, 0.7)');
                     typedBuffer = "";
                 } else if (typedBuffer.includes('vapor')) {
-                    applyTheme('linear-gradient(45deg, #ff71ce, #01cdfe, #b967ff)', '#120524');
+                    applyTheme('linear-gradient(45deg, #ff71ce, #01cdfe, #b967ff)', 'rgba(0, 0, 0, 0.7)');
                     typedBuffer = "";
                 } else if (typedBuffer.includes('hell')) {
-                    applyTheme('linear-gradient(135deg, #430000, #800000, #ff4500)', '#1a0000');
+                    applyTheme('linear-gradient(135deg, #430000, #800000, #ff4500)', 'rgba(0, 0, 0, 0.7)');
                     typedBuffer = "";
                 } else if (typedBuffer.includes('ice')) {
-                    applyTheme('linear-gradient(135deg, #000428, #004e92, #4ca1af)', '#020d1a');
+                    applyTheme('linear-gradient(135deg, #000428, #004e92, #4ca1af)', 'rgba(0, 0, 0, 0.7)');
                     typedBuffer = "";
                 }
             }
@@ -782,22 +925,22 @@
             if (inputSequence.length > 5) {
                 inputSequence.shift();
             }
-            let seqString = inputSequence.join(',');
-            if (seqString.includes('ArrowDown,ArrowRight,Space') || seqString.includes('KeyS,KeyD,Space')) {
+            let sequenceString = inputSequence.join(',');
+            if (sequenceString.includes('ArrowDown,ArrowRight,Space') || sequenceString.includes('KeyS,KeyD,Space')) {
                 triggerHadokenBeam(1);
                 inputSequence = [];
-            } else if (seqString.includes('ArrowDown,ArrowLeft,Space') || seqString.includes('KeyS,KeyA,Space')) {
+            } else if (sequenceString.includes('ArrowDown,ArrowLeft,Space') || sequenceString.includes('KeyS,KeyA,Space')) {
                 triggerHadokenBeam(-1);
                 inputSequence = [];
             }
         });
 
-        function applyTheme(gradient, boxBg) {
+        function applyTheme(gradient, boxBackground) {
             document.body.classList.remove('void-mode', 'bit-8-mode', 'star-mode');
             document.body.style.background = gradient;
             document.body.style.backgroundSize = "500% 500%";
             document.body.style.animation = "lavaGradient1 25s ease infinite";
-            linksBox.style.background = boxBg;
+            linksBoxElement.style.background = boxBackground;
         }
 
         function triggerHadokenBeam(direction) {
@@ -806,8 +949,8 @@
             for (let i = 0; i < 70; i++) {
                 const angle = (Math.random() - 0.5) * 0.5;
                 const speed = Math.random() * 18 + 10;
-                let p = new Particle(startX, startY, (Math.cos(angle) * speed + 12) * direction, (Math.random() - 0.5) * 4, Math.random() * 5 + 2);
-                particles.push(p);
+                let particleInstance = new Particle(startX, startY, (Math.cos(angle) * speed + 12) * direction, (Math.random() - 0.5) * 4, Math.random() * 5 + 2);
+                particleCollection.push(particleInstance);
             }
         }
 
@@ -841,29 +984,30 @@
         }
 
         function triggerZeldaHearts(isGold) {
-            particles = [];
-            const boxRect = linksBox.getBoundingClientRect();
-            let cx = window.innerWidth / 2;
-            let cy = boxRect.bottom + 65;
+            particleCollection = [];
+            const boxRect = linksBoxElement.getBoundingClientRect();
+            let centerX = window.innerWidth / 2;
+            let centerY = boxRect.bottom + 65;
             let offsets = [-130, 0, 130];
             offsets.forEach(offsetX => {
-                let heartPoints = getRetroHeartPoints(cx + offsetX, cy, 10);
+                let heartPoints = getRetroHeartPoints(centerX + offsetX, centerY, 10);
                 heartPoints.forEach(pt => {
                     let startX = Math.random() * window.innerWidth;
                     let startY = Math.random() * window.innerHeight;
-                    let p = new Particle(startX, startY, 0, 0, 4.5);
-                    p.targetX = pt.x;
-                    p.targetY = pt.y;
-                    p.isHeartForm = true;
-                    p.isBurst = false;
-                    p.isCoolingDown = false;
-                    p.isGold = isGold;
-                    p.opacity = 0.95;
-                    particles.push(p);
+                    let particleInstance = new Particle(startX, startY, 0, 0, 4.5);
+                    particleInstance.targetX = pt.x;
+                    particleInstance.targetY = pt.y;
+                    particleInstance.isHeartForm = true;
+                    particleInstance.isBurst = false;
+                    particleInstance.isCoolingDown = false;
+                    particleInstance.isGold = isGold;
+                    particleInstance.opacity = 0.95;
+                    particleCollection.push(particleInstance);
                 });
             });
-            setTimeout(() => {
-                particles.forEach(p => {
+            heartExplodeTimeoutReference = setTimeout(() => {
+                playHeartExplodeSound();
+                particleCollection.forEach(p => {
                     if (p.isHeartForm) {
                         p.isHeartForm = false;
                         let angle = Math.random() * Math.PI * 2;
@@ -884,55 +1028,55 @@
             currentScrollRotate += (targetScrollRotate - currentScrollRotate) * 0.15;
             let boxTransform = `scale(${currentScrollScale}) rotate(${currentScrollRotate}deg)`;
             let boxBlur = Math.abs(scrollVelocity) * 0.15;
-            linksBox.style.transform = boxTransform;
-            linksBox.style.filter = boxBlur > 0.5 ? `blur(${Math.min(boxBlur, 4)}px)` : 'none';
+            linksBoxElement.style.transform = boxTransform;
+            linksBoxElement.style.filter = boxBlur > 0.5 ? `blur(${Math.min(boxBlur, 4)}px)` : 'none';
 
             let targetX = mouseX;
             let targetY = mouseY;
-            let vx = (targetX - ringX) * 0.22;
-            let vy = (targetY - ringY) * 0.22;
-            ringX += vx;
-            ringY += vy;
-            currentVelocity = Math.sqrt(vx * vx + vy * vy);
+            let velocityX = (targetX - ringX) * 0.22;
+            let velocityY = (targetY - ringY) * 0.22;
+            ringX += velocityX;
+            ringY += velocityY;
+            currentVelocity = Math.sqrt(velocityX * velocityX + velocityY * velocityY);
             let stretch = Math.min(currentVelocity * 0.04, 0.5);
-            let angle = Math.atan2(vy, vx);
+            let angle = Math.atan2(velocityY, velocityX);
             let scrollPulse = Math.abs(scrollVelocity) * 0.05;
 
             if (!document.body.classList.contains('is-holding')) {
-                ring.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%, -50%) rotate(${angle}rad) scale(${1 + stretch + scrollPulse}, ${1 - stretch + scrollPulse})`;
+                cursorRingElement.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%, -50%) rotate(${angle}rad) scale(${1 + stretch + scrollPulse}, ${1 - stretch + scrollPulse})`;
             } else {
-                ring.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%, -50%)`;
+                cursorRingElement.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%, -50%)`;
             }
 
-            history.push({ x: ringX, y: ringY });
-            if (history.length > maxHistoryLength) {
-                history.shift();
+            cursorHistory.push({ x: ringX, y: ringY });
+            if (cursorHistory.length > maxHistoryLength) {
+                cursorHistory.shift();
             }
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
             drawVoidDrift();
 
-            particles.forEach(p => {
+            particleCollection.forEach(p => {
                 if (p.isHeartForm) {
-                    let dx = p.targetX - p.x;
-                    let dy = p.targetY - p.y;
-                    p.x += dx * 0.025;
-                    p.y += dy * 0.025;
+                    let deltaX = p.targetX - p.x;
+                    let deltaY = p.targetY - p.y;
+                    p.x += deltaX * 0.025;
+                    p.y += deltaY * 0.025;
                 }
                 p.update();
                 p.draw();
             });
 
-            tCtx.clearRect(0, 0, tCanvas.width, tCanvas.height);
-            if (history.length > 1) {
-                tCtx.beginPath();
-                tCtx.moveTo(history[0].x, history[0].y);
-                for (let i = 1; i < history.length; i++) {
-                    tCtx.lineTo(history[i].x, history[i].y);
+            trailContext.clearRect(0, 0, trailCanvasElement.width, trailCanvasElement.height);
+            if (cursorHistory.length > 1) {
+                trailContext.beginPath();
+                trailContext.moveTo(cursorHistory[0].x, cursorHistory[0].y);
+                for (let i = 1; i < cursorHistory.length; i++) {
+                    trailContext.lineTo(cursorHistory[i].x, cursorHistory[i].y);
                 }
                 let isVoid = document.body.classList.contains('void-mode');
                 let isStar = document.body.classList.contains('star-mode');
-                let gradient = tCtx.createLinearGradient(history[0].x, history[0].y, ringX, ringY);
+                let gradient = trailContext.createLinearGradient(cursorHistory[0].x, cursorHistory[0].y, ringX, ringY);
                 if (isStar) {
                     const hue = (Date.now()) % 360;
                     gradient.addColorStop(0, `hsla(${hue}, 100%, 50%, 0)`);
@@ -943,14 +1087,14 @@
                     gradient.addColorStop(0.5, isVoid ? 'rgba(138, 43, 226, 0.15)' : 'rgba(255, 255, 255, 0.15)');
                     gradient.addColorStop(1, isVoid ? 'rgba(186, 85, 211, 0.65)' : 'rgba(255, 255, 255, 0.65)');
                 }
-                tCtx.strokeStyle = gradient;
-                tCtx.lineWidth = Math.max(4, 48 - (history.length * 1.5) + Math.abs(scrollVelocity));
-                tCtx.lineCap = (document.body.classList.contains('bit-8-mode') || isStar) ? 'butt' : 'round';
-                tCtx.lineJoin = (document.body.classList.contains('bit-8-mode') || isStar) ? 'miter' : 'round';
-                tCtx.shadowBlur = (document.body.classList.contains('bit-8-mode') || isStar) ? 0 : 18;
-                tCtx.shadowColor = isVoid ? 'rgba(138, 43, 226, 0.5)' : 'rgba(255, 255, 255, 0.5)';
-                tCtx.stroke();
-                tCtx.shadowBlur = 0;
+                trailContext.strokeStyle = gradient;
+                trailContext.lineWidth = Math.max(4, 48 - (cursorHistory.length * 1.5) + Math.abs(scrollVelocity));
+                trailContext.lineCap = (document.body.classList.contains('bit-8-mode') || isStar) ? 'butt' : 'round';
+                trailContext.lineJoin = (document.body.classList.contains('bit-8-mode') || isStar) ? 'miter' : 'round';
+                trailContext.shadowBlur = (document.body.classList.contains('bit-8-mode') || isStar) ? 0 : 18;
+                trailContext.shadowColor = isVoid ? 'rgba(138, 43, 226, 0.5)' : 'rgba(255, 255, 255, 0.5)';
+                trailContext.stroke();
+                trailContext.shadowBlur = 0;
             }
 
             requestAnimationFrame(renderLoop);
@@ -968,7 +1112,7 @@
             });
         });
 
-        const presets = [
+        const backgroundPresets = [
             { gradient: "linear-gradient(-45deg, #090e17, #150917, #1f0b18, #130e21, #0a171c, #071217)", animation: "lavaGradient1 32s ease infinite" },
             { gradient: "linear-gradient(135deg, #021a10, #052e16, #022c22, #01120c, #091c14)", animation: "lavaGradient2 28s ease infinite" },
             { gradient: "linear-gradient(45deg, #12081c, #240a1d, #1a0f2b, #0c0817, #1a0711)", animation: "lavaGradient3 35s ease infinite" },
@@ -981,11 +1125,11 @@
             { gradient: "linear-gradient(120deg, #051412, #10081c, #260b14, #0b1721, #080c12)", animation: "lavaGradient2 33s ease infinite" }
         ];
 
-        const randomPreset = presets[Math.floor(Math.random() * presets.length)];
-        const bodyEl = document.body;
-        bodyEl.style.background = randomPreset.gradient;
-        bodyEl.style.backgroundSize = "500% 500%";
-        bodyEl.style.animation = randomPreset.animation;
+        const selectedPreset = backgroundPresets[Math.floor(Math.random() * backgroundPresets.length)];
+        const bodyElement = document.body;
+        bodyElement.style.background = selectedPreset.gradient;
+        bodyElement.style.backgroundSize = "500% 500%";
+        bodyElement.style.animation = selectedPreset.animation;
 
         let showCursor = true;
         let isTypingDone = false;
@@ -1022,84 +1166,44 @@
         }, 1000);
 
         if ('getBattery' in navigator) {
-            navigator.getBattery().then(battery => {
-                const widget = document.getElementById('batteryWidget');
-                const fill = document.getElementById('batteryFill');
-                const text = document.getElementById('batteryText');
+            navigator.getBattery().then(batteryManager => {
+                const widgetElement = document.getElementById('batteryWidget');
+                const fillElement = document.getElementById('batteryFill');
+                const textElement = document.getElementById('batteryText');
 
                 function updateBatteryUI() {
-                    const level = Math.round(battery.level * 100);
-                    fill.style.width = level + '%';
-                    text.textContent = level + '%';
-                    if (battery.charging) {
-                        widget.classList.add('charging');
+                    const level = Math.round(batteryManager.level * 100);
+                    fillElement.style.width = level + '%';
+                    textElement.textContent = level + '%';
+                    if (batteryManager.charging) {
+                        widgetElement.classList.add('charging');
                     } else {
-                        widget.classList.remove('charging');
+                        widgetElement.classList.remove('charging');
                     }
-                    widget.style.display = 'flex';
+                    widgetElement.style.display = 'flex';
                 }
 
                 updateBatteryUI();
-                battery.addEventListener('levelchange', updateBatteryUI);
-                battery.addEventListener('chargingchange', updateBatteryUI);
+                batteryManager.addEventListener('levelchange', updateBatteryUI);
+                batteryManager.addEventListener('chargingchange', updateBatteryUI);
             }).catch(() => {});
         }
 
-        const gyroBtn = document.getElementById('gyroBtn');
-        let gyroActive = false;
-        let baseBeta = null;
-
-        if (window.DeviceOrientationEvent) {
-            if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-                gyroBtn.style.display = 'block';
-            }
-        }
-
-        gyroBtn.addEventListener('click', () => {
-            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-                DeviceOrientationEvent.requestPermission().then(response => {
-                    if (response === 'granted') {
-                        startGyro();
-                    }
-                }).catch(console.error);
-            } else {
-                startGyro();
-            }
-        });
-
-        function startGyro() {
-            gyroActive = true;
-            gyroBtn.style.display = 'none';
-            window.addEventListener('deviceorientation', (event) => {
-                if (!gyroActive) return;
-                let beta = event.beta;
-                if (beta === null) return;
-                if (baseBeta === null) {
-                    baseBeta = beta;
-                }
-                let diff = beta - baseBeta;
-                if (Math.abs(diff) > 3) {
-                    let scrollSpeed = diff * 1.5;
-                    window.scrollBy({ top: scrollSpeed, behavior: 'smooth' });
-                }
-            });
-        }
-
-        let idleTimer = null;
+        let idleTimerReference = null;
         let idleActive = false;
-        let idleTypingTimeout = null;
+        let idleTypingTimeoutReference = null;
 
-        const idleMessage = document.getElementById('idleMessage');
-        const idleText = document.getElementById('idleText');
+        const idleMessageElement = document.getElementById('idleMessage');
+        const idleTextElement = document.getElementById('idleText');
 
-        function typeIdleMessage(text, i = 0) {
-            if (i === 0) {
-                idleText.textContent = '';
+        function typeIdleMessage(text, index = 0) {
+            if (index === 0) {
+                idleTextElement.textContent = '';
             }
-            if (i < text.length) {
-                idleText.textContent += text.charAt(i);
-                idleTypingTimeout = setTimeout(() => {
-                    typeIdleMessage(text, i + 1);
+            if (index < text.length) {
+                idleTextElement.textContent += text.charAt(index);
+                idleTypingTimeoutReference = setTimeout(() => {
+                    typeIdleMessage(text, index + 1);
                 }, 70);
             }
         }
@@ -1108,24 +1212,24 @@
             idleActive = true;
             document.body.classList.add('idle-mode');
             let message = 'bist du noch da?';
-            clearTimeout(idleTypingTimeout);
+            clearTimeout(idleTypingTimeoutReference);
             typeIdleMessage(message);
         }
 
         function leaveIdleMode() {
             if (!idleActive) return;
             idleActive = false;
-            clearTimeout(idleTypingTimeout);
+            clearTimeout(idleTypingTimeoutReference);
             document.body.classList.remove('idle-mode');
         }
 
         function resetIdleTimer() {
-            clearTimeout(idleTimer);
-            clearTimeout(idleTypingTimeout);
+            clearTimeout(idleTimerReference);
+            clearTimeout(idleTypingTimeoutReference);
             if (idleActive) {
                 leaveIdleMode();
             }
-            idleTimer = setTimeout(() => {
+            idleTimerReference = setTimeout(() => {
                 enterIdleMode();
             }, 40000);
         }

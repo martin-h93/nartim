@@ -46,11 +46,20 @@
             border: none;
         }
 
-        .mailto-link,
-        .mailto-link:hover,
-        .mailto-link:focus,
-        .mailto-link:active,
-        .mailto-link:visited {
+        .links-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .icon-link,
+        .icon-link:hover,
+        .icon-link:focus,
+        .icon-link:active,
+        .icon-link:visited {
             display: inline-block;
             text-decoration: none;
             outline: none !important;
@@ -60,10 +69,8 @@
 
         .icon-wrapper {
             position: relative;
-            width: 300px;
-            height: 300px;
-            max-width: 70vw;
-            max-height: 25vh;
+            width: 120px;
+            height: 120px;
             filter: var(--icon-filter);
         }
 
@@ -82,11 +89,11 @@
             display: none;
         }
 
-        .mailto-link:hover .icon-default {
+        .icon-link:hover .icon-default {
             display: none;
         }
 
-        .mailto-link:hover .icon-hover {
+        .icon-link:hover .icon-hover {
             display: block;
         }
     </style>
@@ -97,12 +104,42 @@
         <img src="majestic.jpg" alt="">
     </div>
 
-    <a href="mailto:martin@hoelters.online" class="mailto-link">
-        <div class="icon-wrapper">
-            <img src="mail-icon.png" alt="" class="icon-default">
-            <img src="mail-icon2.png" alt="" class="icon-hover">
-        </div>
-    </a>
+    <div class="links-container">
+        <a href="mailto:martin@hoelters.online" class="icon-link">
+            <div class="icon-wrapper">
+                <img src="mail-icon.png" alt="" class="icon-default">
+                <img src="mail-icon2.png" alt="" class="icon-hover">
+            </div>
+        </a>
+
+        <a href="https://steamcommunity.com/id/nartim" target="_blank" rel="noopener noreferrer" class="icon-link">
+            <div class="icon-wrapper">
+                <img src="steam.png" alt="" class="icon-default">
+                <img src="steam2.png" alt="" class="icon-hover">
+            </div>
+        </a>
+
+        <a href="https://instagram.com/itsyaboimartin" target="_blank" rel="noopener noreferrer" class="icon-link">
+            <div class="icon-wrapper">
+                <img src="instagram.png" alt="" class="icon-default">
+                <img src="instagram2.png" alt="" class="icon-hover">
+            </div>
+        </a>
+
+        <a href="https://letterboxd.com/nartim" target="_blank" rel="noopener noreferrer" class="icon-link">
+            <div class="icon-wrapper">
+                <img src="letterboxd.png" alt="" class="icon-default">
+                <img src="letterboxd2.png" alt="" class="icon-hover">
+            </div>
+        </a>
+
+        <a href="https://open.spotify.com/user/martindergott" target="_blank" rel="noopener noreferrer" class="icon-link">
+            <div class="icon-wrapper">
+                <img src="spotify.png" alt="" class="icon-default">
+                <img src="spotify2.png" alt="" class="icon-hover">
+            </div>
+        </a>
+    </div>
 
     <script>
         const text = "nartim.de";

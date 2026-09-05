@@ -13,8 +13,7 @@
             -webkit-tap-highlight-color: transparent;
         }
         
-        /* Verhindert das Markieren von Text und Elementen gezielt */
-        body, .links-container, .image-container {
+        body, .links-container {
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
@@ -183,22 +182,9 @@
             }
         }
 
-        .image-container, .links-container {
+        .links-container {
             position: relative;
             z-index: 2;
-            transition: transform 0.1s ease-out, filter 0.1s ease-out;
-        }
-
-        .image-container img {
-            max-width: 85vw;
-            max-height: 55vh;
-            object-fit: contain;
-            display: block;
-            border: none;
-            pointer-events: none;
-        }
-
-        .links-container {
             display: flex;
             flex-direction: row;
             justify-content: center;
@@ -212,6 +198,7 @@
             padding: 32px 48px;
             border-radius: 28px;
             box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65);
+            transition: transform 0.1s ease-out, filter 0.1s ease-out;
         }
 
         .icon-link,
@@ -279,10 +266,6 @@
 
     <div class="custom-cursor cursor-dot" id="cursorDot"></div>
     <div class="custom-cursor cursor-ring" id="cursorRing"></div>
-
-    <div class="image-container" id="imageBox">
-        <img src="majestic.jpg" alt="">
-    </div>
 
     <div class="links-container" id="linksBox">
         <a href="mailto:martin@hoelters.online" class="icon-link">
@@ -445,7 +428,6 @@
 
         const dot = document.getElementById('cursorDot');
         const ring = document.getElementById('cursorRing');
-        const imageBox = document.getElementById('imageBox');
         const linksBox = document.getElementById('linksBox');
         
         let mouseX = window.innerWidth / 2;
@@ -507,9 +489,6 @@
 
             let boxTransform = `scale(${currentScrollScale}) rotate(${currentScrollRotate}deg)`;
             let boxBlur = Math.abs(scrollVelocity) * 0.15;
-            
-            imageBox.style.transform = boxTransform;
-            imageBox.style.filter = boxBlur > 0.5 ? `blur(${Math.min(boxBlur, 4)}px)` : 'none';
             
             linksBox.style.transform = boxTransform;
             linksBox.style.filter = boxBlur > 0.5 ? `blur(${Math.min(boxBlur, 4)}px)` : 'none';

@@ -325,6 +325,32 @@
             cursorDot.style.transform=`translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
         });
 
+        // Partikel-Fang & Freilassungs-Logik (Achievement / State Machine)
+        let successCaptureCount = 0;
+        let specialMessageActive = false;
+        let konamiUsedAfterSpecial = false;
+        let specialMessageTimer = null;
+        let timeout60Timer = null;
+        let currentSpecialTextState = 'initial'; // 'initial', 'konami', 'done'
+
+        function triggerSpecialIdleMessage(text) {
+            if (konamiUsedAfterSpecial) return;
+            specialMessageActive = true;
+            document.body.classList.add('idle-mode');
+            clearTimeout(idleTypingTimer);
+            typeIdle(text);
+        }
+
+        function dismissSpecialIdleMessage() {
+            if (!specialMessageActive) return;
+            specialMessageActive = false;
+            clearTimeout(specialMessageTimer);
+            clearTimeout(timeout60Timer);
+            document.body.classList.remove('idle-mode');
+            clearTimeout(idleTypingTimer);
+            resetIdle();
+        }
+
         let holdTimer;
         window.addEventListener('mousedown',(e)=>{
             if(e.button!==0)return;
@@ -346,7 +372,26 @@
             if(document.body.classList.contains('is-holding')){
                 let cap=0;
                 particles.forEach(p=>{if(Math.sqrt((ringX-p.x)**2+(ringY-p.y)**2)<=37)cap++;});
-                if(cap>0)playSound(cap>=particles.length?'allCaptured':'release');
+                if(cap>0){
+                    playSound(cap>=particles.length?'allCaptured':'release');
+                    
+                    // Prüfen ob alle Partikel auf dem Bildschirm eingefangen wurden
+                    if (cap >= particles.length && !konamiUsedAfterSpecial && currentSpecialTextState === 'initial') {
+                        successCaptureCount++;
+                        if (successCaptureCount >= 10) {
+                            currentSpecialTextState = 'konami';
+                            triggerSpecialIdleMessage("weißt du eigentlich wie man kleine welle auf japanisch übersetzt?");
+                            
+                            timeout60Timer = setTimeout(() => {
+                                if (specialMessageActive && currentSpecialTextState === 'konami' && !konamiUsedAfterSpecial) {
+                                    currentSpecialTextState = 'konami-waiting';
+                                    clearTimeout(idleTypingTimer);
+                                    typeIdle("...konami");
+                                }
+                            }, 30000);
+                        }
+                    }
+                }
             }
             document.body.classList.remove('is-holding');
         });
@@ -358,6 +403,12 @@
             if(e.code===konamiSeq[konamiIdx]){
                 konamiIdx++;
                 if(konamiIdx===konamiSeq.length){
+                    // Konami-Code erfolgreich eingegeben -> Prüfen ob Spezialnachricht aktiv war
+                    if (specialMessageActive && !konamiUsedAfterSpecial) {
+                        konamiUsedAfterSpecial = true;
+                        dismissSpecialIdleMessage();
+                    }
+
                     if(document.body.classList.contains('star-mode')){
                         playSound('konamiSpecial');
                         clearTimeout(starTimer);clearTimeout(heartTimer);
@@ -576,14 +627,16 @@
             }
         }
         function enterIdle(){
+            if (specialMessageActive) return; // Wenn die Spezialnachricht aktiv ist, greift der normale Idle nicht dazwischen
             idleActive=true;document.body.classList.add('idle-mode');
             clearTimeout(idleTypingTimer);typeIdle('bist du noch da?');
         }
         function leaveIdle(){
-            if(!idleActive)return;
+            if(!idleActive || specialMessageActive)return;
             idleActive=false;clearTimeout(idleTypingTimer);document.body.classList.remove('idle-mode');
         }
         function resetIdle(){
+            if (specialMessageActive) return; // Solange die Spezialnachricht da ist, wird der Idle-Reset ignoriert
             clearTimeout(idleTimer);clearTimeout(idleTypingTimer);
             if(idleActive)leaveIdle();
             idleTimer=setTimeout(()=>enterIdle(),40000);

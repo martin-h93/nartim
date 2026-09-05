@@ -117,45 +117,62 @@
             " (-°   )",
             " (°-°  )"
         ];
-        
-        let step = 0;
-        let isDeleting = false;
-        let emojiIndex = 0;
-        let emojiInterval = null;
 
-        function animateTitle() {
-            if (!isDeleting) {
-                document.title = text.substring(0, step + 1);
-                step++;
+        let state = "BUILDING_ALL";
+        let fullString = text + emojiFrames[0];
+        let fullArray = Array.from(fullString);
+        let currentIndex = 1;
+        let emojiStep = 0;
+        let emojiLoops = 0;
 
-                if (step === text.length) {
-                    emojiInterval = setInterval(() => {
-                        document.title = text + emojiFrames[emojiIndex];
-                        emojiIndex = (emojiIndex + 1) % emojiFrames.length;
-                    }, 100);
+        const baseSpeed = 100;
+        const maxEmojiLoops = 2;
 
-                    setTimeout(() => {
-                        clearInterval(emojiInterval);
-                        isDeleting = true;
-                        animateTitle();
-                    }, 2500);
-                    return;
+        function tick() {
+            if (state === "BUILDING_ALL") {
+                currentIndex++;
+                document.title = fullArray.slice(0, currentIndex).join('');
+
+                if (currentIndex === fullArray.length) {
+                    state = "ANIMATING_EMOJI";
                 }
-            } else {
-                document.title = text.substring(0, step - 1);
-                step--;
+                setTimeout(tick, baseSpeed);
+            } 
+            else if (state === "ANIMATING_EMOJI") {
+                fullString = text + emojiFrames[emojiStep];
+                fullArray = Array.from(fullString);
+                document.title = fullString;
+                
+                emojiStep = (emojiStep + 1) % emojiFrames.length;
 
-                if (step === 0) {
-                    isDeleting = false;
-                    setTimeout(animateTitle, 500);
-                    return;
+                if (emojiStep === 0) {
+                    emojiLoops++;
+                }
+
+                if (emojiLoops >= maxEmojiLoops) {
+                    emojiLoops = 0;
+                    emojiStep = 0;
+                    currentIndex = fullArray.length;
+                    state = "DELETING_ALL";
+                }
+                setTimeout(tick, baseSpeed);
+            } 
+            else if (state === "DELETING_ALL") {
+                if (currentIndex > 1) {
+                    currentIndex--;
+                    document.title = fullArray.slice(0, currentIndex).join('');
+                    setTimeout(tick, baseSpeed);
+                } else {
+                    fullString = text + emojiFrames[0];
+                    fullArray = Array.from(fullString);
+                    state = "BUILDING_ALL";
+                    setTimeout(tick, baseSpeed * 3);
                 }
             }
-
-            setTimeout(animateTitle, isDeleting ? 40 : 80);
         }
 
-        animateTitle();
+        document.title = "n";
+        setTimeout(tick, baseSpeed);
     </script>
 
 </body>

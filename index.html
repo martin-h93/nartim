@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>nartim.de</title>
-    <link rel="icon" type="image/png" href="mail-icon.png">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
     <meta property="og:title" content="nartim.de">
     <meta property="og:description" content="Persönliche Landingpage von Martin">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://nartim.de">
-    <meta property="og:image" content="mail-icon.png">
+    <meta property="og:image" content="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
     <style>
         * {
             margin: 0;
@@ -424,16 +424,16 @@
 </head>
 <body>
 
-    <link rel="preload" as="image" href="mail-icon.png">
-    <link rel="preload" as="image" href="mail-icon2.png">
-    <link rel="preload" as="image" href="steam.png">
-    <link rel="preload" as="image" href="steam2.png">
-    <link rel="preload" as="image" href="instagram.png">
-    <link rel="preload" as="image" href="instagram2.png">
-    <link rel="preload" as="image" href="letterboxd.png">
-    <link rel="preload" as="image" href="letterboxd2.png">
-    <link rel="preload" as="image" href="spotify.png">
-    <link rel="preload" as="image" href="spotify2.png">
+    <link rel="preload" as="image" href="./mail-icon.png">
+    <link rel="preload" as="image" href="./mail-icon2.png">
+    <link rel="preload" as="image" href="./steam.png">
+    <link rel="preload" as="image" href="./steam2.png">
+    <link rel="preload" as="image" href="./instagram.png">
+    <link rel="preload" as="image" href="./instagram2.png">
+    <link rel="preload" as="image" href="./letterboxd.png">
+    <link rel="preload" as="image" href="./letterboxd2.png">
+    <link rel="preload" as="image" href="./spotify.png">
+    <link rel="preload" as="image" href="./spotify2.png">
 
     <canvas id="particleCanvas"></canvas>
     <canvas id="voidCanvas"></canvas>
@@ -445,32 +445,32 @@
     <div class="links-container" id="linksBox">
         <a href="mailto:martin@hoelters.online" class="icon-link">
             <div class="icon-wrapper">
-                <img src="mail-icon.png" alt="E-Mail" class="icon-default">
-                <img src="mail-icon2.png" alt="E-Mail Hover" class="icon-hover">
+                <img src="./mail-icon.png" alt="E-Mail" class="icon-default">
+                <img src="./mail-icon2.png" alt="E-Mail Hover" class="icon-hover">
             </div>
         </a>
         <a href="https://steamcommunity.com/id/nartim" target="_blank" rel="noopener noreferrer" class="icon-link">
             <div class="icon-wrapper">
-                <img src="steam.png" alt="Steam" class="icon-default">
-                <img src="steam2.png" alt="Steam Hover" class="icon-hover">
+                <img src="./steam.png" alt="Steam" class="icon-default">
+                <img src="./steam2.png" alt="Steam Hover" class="icon-hover">
             </div>
         </a>
         <a href="https://instagram.com/itsyaboimartin" target="_blank" rel="noopener noreferrer" class="icon-link">
             <div class="icon-wrapper">
-                <img src="instagram.png" alt="Instagram" class="icon-default">
-                <img src="instagram2.png" alt="Instagram Hover" class="icon-hover">
+                <img src="./instagram.png" alt="Instagram" class="icon-default">
+                <img src="./instagram2.png" alt="Instagram Hover" class="icon-hover">
             </div>
         </a>
         <a href="https://letterboxd.com/nartim" target="_blank" rel="noopener noreferrer" class="icon-link">
             <div class="icon-wrapper">
-                <img src="letterboxd.png" alt="Letterboxd" class="icon-default">
-                <img src="letterboxd2.png" alt="Letterboxd Hover" class="icon-hover">
+                <img src="./letterboxd.png" alt="Letterboxd" class="icon-default">
+                <img src="./letterboxd2.png" alt="Letterboxd Hover" class="icon-hover">
             </div>
         </a>
         <a href="https://open.spotify.com/user/martindergott" target="_blank" rel="noopener noreferrer" class="icon-link">
             <div class="icon-wrapper">
-                <img src="spotify.png" alt="Spotify" class="icon-default">
-                <img src="spotify2.png" alt="Spotify Hover" class="icon-hover">
+                <img src="./spotify.png" alt="Spotify" class="icon-default">
+                <img src="./spotify2.png" alt="Spotify Hover" class="icon-hover">
             </div>
         </a>
     </div>
@@ -501,139 +501,104 @@
             return audioContextInstance;
         }
 
-        function playClickSound() {
-            try {
-                const ctx = getAudioContext();
-                const oscillator = ctx.createOscillator();
-                const gainNode = ctx.createGain();
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(450, ctx.currentTime);
-                oscillator.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.08);
-                gainNode.gain.setValueAtTime(0.12, ctx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
-                oscillator.connect(gainNode);
-                gainNode.connect(ctx.destination);
-                oscillator.start();
-                oscillator.stop(ctx.currentTime + 0.08);
-            } catch (error) {}
-        }
-
-        function playHoldStartSound() {
-            try {
-                const ctx = getAudioContext();
-                const oscillator = ctx.createOscillator();
-                const gainNode = ctx.createGain();
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(220, ctx.currentTime);
-                oscillator.frequency.linearRampToValueAtTime(330, ctx.currentTime + 0.15);
-                gainNode.gain.setValueAtTime(0.01, ctx.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 0.15);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
-                oscillator.connect(gainNode);
-                gainNode.connect(ctx.destination);
-                oscillator.start();
-                oscillator.stop(ctx.currentTime + 0.2);
-            } catch (error) {}
-        }
-
-        function playLongReleaseSound() {
+        function playSound(type) {
             try {
                 const ctx = getAudioContext();
                 const currentTime = ctx.currentTime;
-                [523.25, 659.25, 783.99].forEach((freq, index) => {
-                    const oscillator = ctx.createOscillator();
-                    const gainNode = ctx.createGain();
-                    oscillator.type = 'triangle';
-                    oscillator.frequency.setValueAtTime(freq, currentTime + index * 0.06);
-                    gainNode.gain.setValueAtTime(0.001, currentTime + index * 0.06);
-                    gainNode.gain.linearRampToValueAtTime(0.1, currentTime + index * 0.06 + 0.02);
-                    gainNode.gain.exponentialRampToValueAtTime(0.001, currentTime + index * 0.06 + 0.3);
-                    oscillator.connect(gainNode);
-                    gainNode.connect(ctx.destination);
-                    oscillator.start(currentTime + index * 0.06);
-                    oscillator.stop(currentTime + index * 0.06 + 0.3);
-                });
-            } catch (error) {}
-        }
-
-        function playAllCapturedSound() {
-            try {
-                const ctx = getAudioContext();
-                const currentTime = ctx.currentTime;
-                const arpeggio = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
-                arpeggio.forEach((freq, index) => {
-                    const oscillator = ctx.createOscillator();
-                    const gainNode = ctx.createGain();
-                    oscillator.type = 'sawtooth';
-                    oscillator.frequency.setValueAtTime(freq, currentTime + index * 0.04);
-                    gainNode.gain.setValueAtTime(0.001, currentTime + index * 0.04);
-                    gainNode.gain.linearRampToValueAtTime(0.12, currentTime + index * 0.04 + 0.01);
-                    gainNode.gain.exponentialRampToValueAtTime(0.0001, currentTime + index * 0.04 + 0.35);
-                    oscillator.connect(gainNode);
-                    gainNode.connect(ctx.destination);
-                    oscillator.start(currentTime + index * 0.04);
-                    oscillator.stop(currentTime + index * 0.04 + 0.35);
-                });
-            } catch (error) {}
-        }
-
-        function playKonamiStandardSound() {
-            try {
-                const ctx = getAudioContext();
-                const currentTime = ctx.currentTime;
-                const notes = [330, 392, 659, 523, 587, 784];
-                notes.forEach((freq, index) => {
-                    const oscillator = ctx.createOscillator();
-                    const gainNode = ctx.createGain();
-                    oscillator.type = 'square';
-                    oscillator.frequency.setValueAtTime(freq, currentTime + index * 0.07);
-                    gainNode.gain.setValueAtTime(0.06, currentTime + index * 0.07);
-                    gainNode.gain.exponentialRampToValueAtTime(0.001, currentTime + index * 0.07 + 0.09);
-                    oscillator.connect(gainNode);
-                    gainNode.connect(ctx.destination);
-                    oscillator.start(currentTime + index * 0.07);
-                    oscillator.stop(currentTime + index * 0.07 + 0.09);
-                });
-            } catch (error) {}
-        }
-
-        function playKonamiSpecialSound() {
-            try {
-                const ctx = getAudioContext();
-                const currentTime = ctx.currentTime;
-                const sweetNotes = [587.33, 659.25, 880.00, 987.77, 1318.51];
-                sweetNotes.forEach((freq, index) => {
-                    const oscillator = ctx.createOscillator();
-                    const gainNode = ctx.createGain();
-                    oscillator.type = 'sine';
-                    oscillator.frequency.setValueAtTime(freq, currentTime + index * 0.08);
-                    gainNode.gain.setValueAtTime(0.08, currentTime + index * 0.08);
-                    gainNode.gain.exponentialRampToValueAtTime(0.0001, currentTime + index * 0.08 + 0.25);
-                    oscillator.connect(gainNode);
-                    gainNode.connect(ctx.destination);
-                    oscillator.start(currentTime + index * 0.08);
-                    oscillator.stop(currentTime + index * 0.08 + 0.25);
-                });
-            } catch (error) {}
-        }
-
-        function playHeartExplodeSound() {
-            try {
-                const ctx = getAudioContext();
-                const currentTime = ctx.currentTime;
-                const explodeNotes = [784.00, 659.25, 523.25, 392.00, 261.63];
-                explodeNotes.forEach((freq, index) => {
-                    const oscillator = ctx.createOscillator();
-                    const gainNode = ctx.createGain();
-                    oscillator.type = 'sawtooth';
-                    oscillator.frequency.setValueAtTime(freq, currentTime + index * 0.05);
-                    gainNode.gain.setValueAtTime(0.05, currentTime + index * 0.05);
-                    gainNode.gain.exponentialRampToValueAtTime(0.0001, currentTime + index * 0.05 + 0.08);
-                    oscillator.connect(gainNode);
-                    gainNode.connect(ctx.destination);
-                    oscillator.start(currentTime + index * 0.05);
-                    oscillator.stop(currentTime + index * 0.05 + 0.08);
-                });
+                
+                if (type === 'click') {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(450, currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(150, currentTime + 0.08);
+                    gain.gain.setValueAtTime(0.12, currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, currentTime + 0.08);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(currentTime + 0.08);
+                } else if (type === 'holdStart') {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(220, currentTime);
+                    osc.frequency.linearRampToValueAtTime(330, currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.01, currentTime);
+                    gain.gain.linearRampToValueAtTime(0.08, currentTime + 0.15);
+                    gain.gain.exponentialRampToValueAtTime(0.001, currentTime + 0.2);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(currentTime + 0.2);
+                } else if (type === 'release') {
+                    [523.25, 659.25, 783.99].forEach((freq, index) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, currentTime + index * 0.06);
+                        gain.gain.setValueAtTime(0.001, currentTime + index * 0.06);
+                        gain.gain.linearRampToValueAtTime(0.1, currentTime + index * 0.06 + 0.02);
+                        gain.gain.exponentialRampToValueAtTime(0.001, currentTime + index * 0.06 + 0.3);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(currentTime + index * 0.06);
+                        osc.stop(currentTime + index * 0.06 + 0.3);
+                    });
+                } else if (type === 'allCaptured') {
+                    [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50].forEach((freq, index) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(freq, currentTime + index * 0.04);
+                        gain.gain.setValueAtTime(0.001, currentTime + index * 0.04);
+                        gain.gain.linearRampToValueAtTime(0.12, currentTime + index * 0.04 + 0.01);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, currentTime + index * 0.04 + 0.35);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(currentTime + index * 0.04);
+                        osc.stop(currentTime + index * 0.04 + 0.35);
+                    });
+                } else if (type === 'konamiStandard') {
+                    [330, 392, 659, 523, 587, 784].forEach((freq, index) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(freq, currentTime + index * 0.07);
+                        gain.gain.setValueAtTime(0.06, currentTime + index * 0.07);
+                        gain.gain.exponentialRampToValueAtTime(0.001, currentTime + index * 0.07 + 0.09);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(currentTime + index * 0.07);
+                        osc.stop(currentTime + index * 0.07 + 0.09);
+                    });
+                } else if (type === 'konamiSpecial') {
+                    [587.33, 659.25, 880.00, 987.77, 1318.51].forEach((freq, index) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, currentTime + index * 0.08);
+                        gain.gain.setValueAtTime(0.08, currentTime + index * 0.08);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, currentTime + index * 0.08 + 0.25);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(currentTime + index * 0.08);
+                        osc.stop(currentTime + index * 0.08 + 0.25);
+                    });
+                } else if (type === 'heartExplode') {
+                    [784.00, 659.25, 523.25, 392.00, 261.63].forEach((freq, index) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(freq, currentTime + index * 0.05);
+                        gain.gain.setValueAtTime(0.05, currentTime + index * 0.05);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, currentTime + index * 0.05 + 0.08);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(currentTime + index * 0.05);
+                        osc.stop(currentTime + index * 0.05 + 0.08);
+                    });
+                }
             } catch (error) {}
         }
 
@@ -846,7 +811,7 @@
 
         window.addEventListener('mousedown', (e) => {
             if (e.button !== 0) return;
-            playClickSound();
+            playSound('click');
 
             const rippleElement = document.createElement('div');
             rippleElement.className = 'click-ripple';
@@ -863,7 +828,7 @@
 
             holdTimeoutReference = setTimeout(() => {
                 document.body.classList.add('is-holding');
-                playHoldStartSound();
+                playSound('holdStart');
             }, 150);
         });
 
@@ -881,9 +846,9 @@
                 });
                 if (capturedCount > 0) {
                     if (capturedCount >= particleCollection.length) {
-                        playAllCapturedSound();
+                        playSound('allCaptured');
                     } else {
-                        playLongReleaseSound();
+                        playSound('release');
                     }
                 }
             }
@@ -906,13 +871,13 @@
                     document.body.classList.remove('star-mode');
 
                     if (konamiStage === 1) {
-                        playKonamiStandardSound();
+                        playSound('konamiStandard');
                         triggerZeldaHearts(false);
                     } else if (konamiStage === 2) {
-                        playKonamiStandardSound();
+                        playSound('konamiStandard');
                         triggerZeldaHearts(true);
                     } else if (konamiStage === 3) {
-                        playKonamiSpecialSound();
+                        playSound('konamiSpecial');
                         document.body.classList.add('bit-8-mode', 'star-mode');
                         triggerZeldaHearts(false);
                         starTimeoutReference = setTimeout(() => {
@@ -921,7 +886,7 @@
                             konamiStage = 0;
                         }, 5000);
                     } else {
-                        playKonamiStandardSound();
+                        playSound('konamiStandard');
                         triggerZeldaHearts(false);
                     }
                     konamiIndex = 0;
@@ -942,21 +907,27 @@
                     typedBuffer = "";
                 } else if (typedBuffer.includes('cyber')) {
                     applyTheme('linear-gradient(45deg, #050505, #00ffcc, #ff007f)', 'rgba(0, 0, 0, 0.7)');
+                    document.body.style.filter = "contrast(1.3) brightness(1.1)";
                     typedBuffer = "";
                 } else if (typedBuffer.includes('sunset')) {
                     applyTheme('linear-gradient(135deg, #ff512f, #dd2476, #2b1055)', 'rgba(0, 0, 0, 0.7)');
+                    document.body.style.filter = "sepia(0.3) saturate(1.4)";
                     typedBuffer = "";
                 } else if (typedBuffer.includes('monochrome')) {
                     applyTheme('linear-gradient(0deg, #111111, #333333, #000000)', 'rgba(0, 0, 0, 0.7)');
+                    document.body.style.filter = "grayscale(1)";
                     typedBuffer = "";
                 } else if (typedBuffer.includes('vapor')) {
                     applyTheme('linear-gradient(45deg, #ff71ce, #01cdfe, #b967ff)', 'rgba(0, 0, 0, 0.7)');
+                    document.body.style.filter = "hue-rotate(45deg) saturate(1.5)";
                     typedBuffer = "";
                 } else if (typedBuffer.includes('hell')) {
                     applyTheme('linear-gradient(135deg, #430000, #800000, #ff4500)', 'rgba(0, 0, 0, 0.7)');
+                    document.body.style.filter = "invert(0.15) hue-rotate(-20deg)";
                     typedBuffer = "";
                 } else if (typedBuffer.includes('ice')) {
                     applyTheme('linear-gradient(135deg, #000428, #004e92, #4ca1af)', 'rgba(0, 0, 0, 0.7)');
+                    document.body.style.filter = "hue-rotate(180deg) brightness(1.1)";
                     typedBuffer = "";
                 }
             }
@@ -1047,7 +1018,7 @@
                 });
             });
             heartExplodeTimeoutReference = setTimeout(() => {
-                playHeartExplodeSound();
+                playSound('heartExplode');
                 particleCollection.forEach(p => {
                     if (p.isHeartForm) {
                         p.isHeartForm = false;

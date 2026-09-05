@@ -338,13 +338,17 @@
                         successCaptureCount++;
                         if (successCaptureCount >= 10) {
                             currentSpecialTextState = 'konami';
-                            triggerSpecialIdleMessage("weißt du eigentlich wie man kleine welle auf japanisch übersetzt?");
+                            triggerSpecialIdleMessage("weißt du eigentlich was kleine welle auf japanisch heißt?");
                             
                             timeout60Timer = setTimeout(() => {
                                 if (specialMessageActive && currentSpecialTextState === 'konami' && !konamiUsedAfterSpecial) {
                                     currentSpecialTextState = 'konami-waiting';
                                     clearTimeout(idleTypingTimer);
-                                    typeIdle("...konami");
+                                    deleteIdle(() => {
+                                        if (specialMessageActive && !konamiUsedAfterSpecial) {
+                                            typeIdle("...konami");
+                                        }
+                                    });
                                 }
                             }, 15000);
                         }
@@ -542,6 +546,15 @@
             if(i<txt.length){
                 idleTxt.textContent+=txt.charAt(i);
                 idleTypingTimer=setTimeout(()=>typeIdle(txt,i+1),70);
+            }
+        }
+        function deleteIdle(callback){
+            let currentText=idleTxt.textContent;
+            if(currentText.length>0){
+                idleTxt.textContent=currentText.slice(0,-1);
+                idleTypingTimer=setTimeout(()=>deleteIdle(callback),40);
+            }else if(callback){
+                callback();
             }
         }
         function enterIdle(){

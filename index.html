@@ -13,20 +13,50 @@
             -webkit-tap-highlight-color: transparent;
         }
         
+        /* Verhindert das Markieren von Text und Elementen gezielt */
+        body, .links-container, .image-container {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
         :root {
-            --bg-color: #ffffff;
             --icon-filter: none;
         }
 
         @media (prefers-color-scheme: dark) {
             :root {
-                --bg-color: #000000;
                 --icon-filter: invert(1) drop-shadow(0 0 2px rgba(255,255,255,0.2));
             }
         }
 
+        @keyframes lavaGradient1 {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes lavaGradient2 {
+            0% { background-position: 50% 0%; }
+            50% { background-position: 50% 100%; }
+            100% { background-position: 50% 0%; }
+        }
+
+        @keyframes lavaGradient3 {
+            0% { background-position: 0% 0%; }
+            50% { background-position: 100% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+
+        @keyframes lavaGradient4 {
+            0% { background-position: 100% 0%; }
+            50% { background-position: 0% 100%; }
+            100% { background-position: 100% 0%; }
+        }
+
         body {
-            background-color: var(--bg-color);
+            background-size: 500% 500%;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -35,7 +65,128 @@
             gap: 30px;
             padding: 20px 0;
             font-family: sans-serif;
-            transition: background-color 0.3s ease;
+            transition: background 1s ease;
+            cursor: default;
+            overflow: hidden;
+        }
+
+        /* Background Particle Canvas */
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Prominent Fluid Trail Canvas */
+        #trailCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9998;
+        }
+
+        /* Custom Cursor Elements */
+        .custom-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 9999;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+                        height 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+                        background-color 0.2s ease, 
+                        border 0.2s ease,
+                        backdrop-filter 0.2s ease;
+        }
+
+        .cursor-dot {
+            width: 6px;
+            height: 6px;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.95);
+        }
+
+        .cursor-ring {
+            width: 38px;
+            height: 38px;
+            border: 1.5px solid rgba(255, 255, 255, 0.45);
+        }
+
+        /* Hover states triggered via JS classes */
+        body.hovering .cursor-dot {
+            transform: translate(-50%, -50%) scale(0);
+        }
+
+        body.hovering .cursor-ring {
+            width: 74px;
+            height: 74px;
+            border-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.2), inset 0 0 15px rgba(255, 255, 255, 0.15);
+        }
+
+        /* Hold state styles */
+        body.is-holding .cursor-dot {
+            transform: translate(-50%, -50%) scale(2.2);
+            background-color: rgba(255, 255, 255, 1);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 1), 0 0 50px rgba(255, 255, 255, 0.5);
+        }
+
+        body.is-holding .cursor-ring {
+            width: 22px;
+            height: 22px;
+            border-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(6px);
+        }
+
+        /* Click Ripple Effect */
+        .click-ripple {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            border: 1.5px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 10000;
+            animation: rippleAnim 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes rippleAnim {
+            0% {
+                width: 20px;
+                height: 20px;
+                opacity: 1;
+                border-color: rgba(255, 255, 255, 0.9);
+                box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            }
+            100% {
+                width: 120px;
+                height: 120px;
+                opacity: 0;
+                border-color: rgba(255, 255, 255, 0);
+                box-shadow: 0 0 25px rgba(255, 255, 255, 0);
+            }
+        }
+
+        .image-container, .links-container {
+            position: relative;
+            z-index: 2;
+            transition: transform 0.1s ease-out, filter 0.1s ease-out;
         }
 
         .image-container img {
@@ -44,6 +195,7 @@
             object-fit: contain;
             display: block;
             border: none;
+            pointer-events: none;
         }
 
         .links-container {
@@ -51,8 +203,15 @@
             flex-direction: row;
             justify-content: center;
             align-items: center;
-            gap: 20px;
+            gap: 34px;
             flex-wrap: wrap;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 32px 48px;
+            border-radius: 28px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65);
         }
 
         .icon-link,
@@ -69,9 +228,10 @@
 
         .icon-wrapper {
             position: relative;
-            width: 120px;
-            height: 120px;
+            width: 210px;
+            height: 210px;
             filter: var(--icon-filter);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .icon-wrapper img {
@@ -83,10 +243,15 @@
             object-fit: contain;
             border: none;
             outline: none !important;
+            pointer-events: none;
         }
 
         .icon-hover {
             display: none;
+        }
+
+        .icon-link:hover .icon-wrapper {
+            transform: scale(1.25);
         }
 
         .icon-link:hover .icon-default {
@@ -96,15 +261,30 @@
         .icon-link:hover .icon-hover {
             display: block;
         }
+
+        @media (hover: none) and (pointer: coarse) {
+            .custom-cursor, #particleCanvas, #trailCanvas {
+                display: none;
+            }
+            body {
+                cursor: auto;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <div class="image-container">
+    <canvas id="particleCanvas"></canvas>
+    <canvas id="trailCanvas"></canvas>
+
+    <div class="custom-cursor cursor-dot" id="cursorDot"></div>
+    <div class="custom-cursor cursor-ring" id="cursorRing"></div>
+
+    <div class="image-container" id="imageBox">
         <img src="majestic.jpg" alt="">
     </div>
 
-    <div class="links-container">
+    <div class="links-container" id="linksBox">
         <a href="mailto:martin@hoelters.online" class="icon-link">
             <div class="icon-wrapper">
                 <img src="mail-icon.png" alt="" class="icon-default">
@@ -142,6 +322,316 @@
     </div>
 
     <script>
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let particles = [];
+        const particleCount = 35;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const tCanvas = document.getElementById('trailCanvas');
+            tCanvas.width = window.innerWidth;
+            tCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor(x, y, customSpeedX, customSpeedY, customSize) {
+                if (x !== undefined && y !== undefined) {
+                    this.x = x;
+                    this.y = y;
+                    this.size = customSize || (Math.random() * 3.5 + 1.2);
+                    this.speedX = customSpeedX || (Math.random() - 0.5) * 4;
+                    this.speedY = customSpeedY || (Math.random() - 0.5) * 4;
+                    this.opacity = Math.random() * 0.4 + 0.4;
+                    this.isBurst = true;
+                } else {
+                    this.reset();
+                }
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 4 + 1.5;
+                this.speedY = -(Math.random() * 0.4 + 0.2);
+                this.speedX = (Math.random() - 0.5) * 0.3;
+                this.opacity = Math.random() * 0.4 + 0.1;
+                this.isBurst = false;
+            }
+            update() {
+                if (this.isBurst) {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    this.speedX *= 0.92;
+                    this.speedY *= 0.92;
+
+                    if (Math.abs(this.speedX) < 0.1 && Math.abs(this.speedY) < 0.1) {
+                        this.isBurst = false;
+                        this.speedY = -(Math.random() * 0.4 + 0.2);
+                        this.speedX = (Math.random() - 0.5) * 0.3;
+                    }
+                } else {
+                    this.y += this.speedY + scrollVelocity * 0.2;
+                    this.x += this.speedX;
+                }
+
+                let dx = mouseX - this.x;
+                let dy = mouseY - this.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                let maxDistance = 120;
+
+                let isHolding = document.body.classList.contains('is-holding');
+                if (isHolding) {
+                    let dist = distance;
+                    if (dist > 5) {
+                        this.x += (dx / dist) * 2.5;
+                        this.y += (dy / dist) * 2.5;
+                    }
+                } else if (distance < maxDistance) {
+                    let force = (1 - (distance / maxDistance));
+                    let angle = Math.atan2(dy, dx);
+                    this.x -= Math.cos(angle) * force * 3;
+                    this.y -= Math.sin(angle) * force * 3;
+                }
+
+                if (this.y < -10) {
+                    this.y = canvas.height + 10;
+                    this.x = Math.random() * canvas.width;
+                }
+                if (this.y > canvas.height + 10) {
+                    this.y = -10;
+                    this.x = Math.random() * canvas.width;
+                }
+                if (this.x < -10 || this.x > canvas.width + 10) {
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = 'rgba(255, 255, 255, 0.3)';
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        let scrollVelocity = 0;
+        let targetScrollScale = 1;
+        let currentScrollScale = 1;
+        let targetScrollRotate = 0;
+        let currentScrollRotate = 0;
+
+        window.addEventListener('wheel', (e) => {
+            scrollVelocity += e.deltaY * 0.15;
+            targetScrollScale += e.deltaY * 0.0008;
+            targetScrollRotate += e.deltaY * 0.015;
+            
+            targetScrollScale = Math.max(0.92, Math.min(1.08, targetScrollScale));
+        }, { passive: true });
+
+        const tCanvas = document.getElementById('trailCanvas');
+        const tCtx = tCanvas.getContext('2d');
+        let history = [];
+        const maxHistoryLength = 26;
+
+        const dot = document.getElementById('cursorDot');
+        const ring = document.getElementById('cursorRing');
+        const imageBox = document.getElementById('imageBox');
+        const linksBox = document.getElementById('linksBox');
+        
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let ringX = mouseX;
+        let ringY = mouseY;
+        let currentVelocity = 0;
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            dot.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
+        });
+
+        let holdTimeout;
+
+        window.addEventListener('mousedown', (e) => {
+            if (e.button !== 0) return;
+            
+            const ripple = document.createElement('div');
+            ripple.className = 'click-ripple';
+            ripple.style.left = `${e.clientX}px`;
+            ripple.style.top = `${e.clientY}px`;
+            document.body.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 500);
+
+            for (let i = 0; i < 24; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 6 + 1.5;
+                particles.push(new Particle(
+                    e.clientX, 
+                    e.clientY, 
+                    Math.cos(angle) * speed, 
+                    Math.sin(angle) * speed,
+                    Math.random() * 3 + 1
+                ));
+            }
+
+            holdTimeout = setTimeout(() => {
+                document.body.classList.add('is-holding');
+            }, 150);
+        });
+
+        window.addEventListener('mouseup', () => {
+            clearTimeout(holdTimeout);
+            document.body.classList.remove('is-holding');
+        });
+
+        function renderLoop() {
+            scrollVelocity *= 0.88;
+            targetScrollScale += (1 - targetScrollScale) * 0.1;
+            targetScrollRotate *= 0.88;
+
+            currentScrollScale += (targetScrollScale - currentScrollScale) * 0.15;
+            currentScrollRotate += (targetScrollRotate - currentScrollRotate) * 0.15;
+
+            let boxTransform = `scale(${currentScrollScale}) rotate(${currentScrollRotate}deg)`;
+            let boxBlur = Math.abs(scrollVelocity) * 0.15;
+            
+            imageBox.style.transform = boxTransform;
+            imageBox.style.filter = boxBlur > 0.5 ? `blur(${Math.min(boxBlur, 4)}px)` : 'none';
+            
+            linksBox.style.transform = boxTransform;
+            linksBox.style.filter = boxBlur > 0.5 ? `blur(${Math.min(boxBlur, 4)}px)` : 'none';
+
+            let targetX = mouseX;
+            let targetY = mouseY;
+            let vx = (targetX - ringX) * 0.22;
+            let vy = (targetY - ringY) * 0.22;
+            ringX += vx;
+            ringY += vy;
+
+            currentVelocity = Math.sqrt(vx * vx + vy * vy);
+            let stretch = Math.min(currentVelocity * 0.04, 0.5);
+            let angle = Math.atan2(vy, vx);
+
+            let scrollPulse = Math.abs(scrollVelocity) * 0.05;
+
+            if (!document.body.classList.contains('is-holding')) {
+                ring.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%, -50%) rotate(${angle}rad) scale(${1 + stretch + scrollPulse}, ${1 - stretch + scrollPulse})`;
+            } else {
+                ring.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%, -50%)`;
+            }
+
+            history.push({ x: ringX, y: ringY });
+            if (history.length > maxHistoryLength) {
+                history.shift();
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            tCtx.clearRect(0, 0, tCanvas.width, tCanvas.height);
+            if (history.length > 1) {
+                tCtx.beginPath();
+                tCtx.moveTo(history[0].x, history[0].y);
+                for (let i = 1; i < history.length; i++) {
+                    tCtx.lineTo(history[i].x, history[i].y);
+                }
+                
+                let gradient = tCtx.createLinearGradient(history[0].x, history[0].y, ringX, ringY);
+                gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+                gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.15)');
+                gradient.addColorStop(1, 'rgba(255, 255, 255, 0.65)');
+                
+                tCtx.strokeStyle = gradient;
+                tCtx.lineWidth = Math.max(4, 48 - (history.length * 1.5) + Math.abs(scrollVelocity));
+                tCtx.lineCap = 'round';
+                tCtx.lineJoin = 'round';
+                
+                tCtx.shadowBlur = 18;
+                tCtx.shadowColor = 'rgba(255, 255, 255, 0.5)';
+                
+                tCtx.stroke();
+                tCtx.shadowBlur = 0;
+            }
+
+            requestAnimationFrame(renderLoop);
+        }
+        renderLoop();
+
+        const iconLinks = document.querySelectorAll('.icon-link');
+        iconLinks.forEach(link => {
+            link.addEventListener('mouseenter', () => {
+                document.body.classList.add('hovering');
+            });
+            link.addEventListener('mouseleave', () => {
+                document.body.classList.remove('hovering');
+            });
+        });
+
+        const presets = [
+            {
+                gradient: "linear-gradient(-45deg, #090e17, #150917, #1f0b18, #130e21, #0a171c, #071217)",
+                animation: "lavaGradient1 32s ease infinite"
+            },
+            {
+                gradient: "linear-gradient(135deg, #021a10, #052e16, #022c22, #01120c, #091c14)",
+                animation: "lavaGradient2 28s ease infinite"
+            },
+            {
+                gradient: "linear-gradient(45deg, #12081c, #240a1d, #1a0f2b, #0c0817, #1a0711)",
+                animation: "lavaGradient3 35s ease infinite"
+            },
+            {
+                gradient: "linear-gradient(-135deg, #07141a, #0d1e26, #161026, #1f0d1e, #0d0914)",
+                animation: "lavaGradient4 30s ease infinite"
+            },
+            {
+                gradient: "linear-gradient(60deg, #020c14, #081d1c, #140d24, #210815, #0a1212)",
+                animation: "lavaGradient1 26s ease infinite"
+            },
+            {
+                gradient: "linear-gradient(-60deg, #17070e, #260d1b, #190a26, #09121a, #04100c)",
+                animation: "lavaGradient2 34s ease infinite"
+            },
+            {
+                gradient: "linear-gradient(90deg, #0a1412, #18091a, #290e1b, #121029, #050b12)",
+                animation: "lavaGradient3 38s ease infinite"
+            },
+            {
+                gradient: "linear-gradient(0deg, #070b14, #120917, #1f0e1c, #0e1c17, #03080d)",
+                animation: "lavaGradient4 29s ease infinite"
+            },
+            {
+                gradient: "linear-gradient(-30deg, #0f0817, #1c0d12, #0a1a14, #120f26, #06090f)",
+                animation: "lavaGradient1 31s ease infinite"
+            },
+            {
+                gradient: "linear-gradient(120deg, #051412, #10081c, #260b14, #0b1721, #080c12)",
+                animation: "lavaGradient2 33s ease infinite"
+            }
+        ];
+
+        const randomPreset = presets[Math.floor(Math.random() * presets.length)];
+        const bodyEl = document.body;
+        bodyEl.style.background = randomPreset.gradient;
+        bodyEl.style.backgroundSize = "500% 500%";
+        bodyEl.style.animation = randomPreset.animation;
+
         const text = "nartim.de";
         const emojiFrames = [
             " ( °-°) ",

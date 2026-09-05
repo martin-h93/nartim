@@ -385,44 +385,7 @@
                     konamiIdx=0;
                 }
             }else{konamiIdx=0;}
-
-            let typed='';
-            if(e.key.length===1){
-                typed+=e.key.toLowerCase();
-                if(typed.length>20)typed=typed.slice(-20);
-                if(typed.includes('abstract')||typed.includes('zen')){
-                    document.body.classList.remove('bit-8-mode','star-mode');typed='';
-                }else if(typed.includes('sunset')){
-                    applyTheme('linear-gradient(135deg, #ff512f, #dd2476, #2b1055)','rgba(0, 0, 0, 0.7)');document.body.style.filter="sepia(0.3) saturate(1.4)";typed='';
-                }else if(typed.includes('monochrome')){
-                    applyTheme('linear-gradient(0deg, #111111, #333333, #000000)','rgba(0, 0, 0, 0.7)');document.body.style.filter="grayscale(1)";typed='';
-                }else if(typed.includes('vapor')){
-                    applyTheme('linear-gradient(45deg, #ff71ce, #01cdfe, #b967ff)','rgba(0, 0, 0, 0.7)');document.body.style.filter="hue-rotate(45deg) saturate(1.5)";typed='';
-                }else if(typed.includes('hell')){
-                    applyTheme('linear-gradient(135deg, #430000, #800000, #ff4500)','rgba(0, 0, 0, 0.7)');document.body.style.filter="invert(0.15) hue-rotate(-20deg)";typed='';
-                }else if(typed.includes('ice')){
-                    applyTheme('linear-gradient(135deg, #000428, #004e92, #4ca1af)','rgba(0, 0, 0, 0.7)');document.body.style.filter="hue-rotate(180deg) brightness(1.1)";typed='';
-                }
-            }
-
-            let seq=[];seq.push(e.code);if(seq.length>5)seq.shift();
-            let seqStr=seq.join(',');
-            if(seqStr.includes('ArrowDown,ArrowRight,Space')||seqStr.includes('KeyS,KeyD,Space')){triggerHadokenBeam(1);seq=[];}
-            else if(seqStr.includes('ArrowDown,ArrowLeft,Space')||seqStr.includes('KeyS,KeyA,Space')){triggerHadokenBeam(-1);seq=[];}
         });
-
-        function applyTheme(grad,boxBg){
-            document.body.classList.remove('bit-8-mode','star-mode');
-            document.body.style.background=grad;document.body.style.backgroundSize="500% 500%";
-            document.body.style.animation="lavaGradient1 25s ease infinite";linksBox.style.background=boxBg;
-        }
-
-        function triggerHadokenBeam(dir){
-            for(let i=0;i<70;i++){
-                let a=(Math.random()-0.5)*0.5,s=Math.random()*18+10;
-                particles.push(new Particle(mouseX,mouseY,(Math.cos(a)*s+12)*dir,(Math.random()-0.5)*4,Math.random()*5+2));
-            }
-        }
 
         const heartMatrix=[
             [0,1,1,0,0,1,1,0],

@@ -54,21 +54,26 @@
             100% { background-position: 100% 0%; }
         }
 
+        html, body {
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
         body {
             background-size: 500% 500%;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            min-height: 100dvh;
             gap: 20px;
-            padding: 20px 16px;
+            padding: 40px 16px;
             font-family: sans-serif;
             transition: background 1s ease;
             cursor: default;
-            overflow-y: auto;
-            overflow-x: hidden;
         }
 
         #particleCanvas {
@@ -300,6 +305,22 @@
             box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
         }
 
+        /* Permission Button für Gyroskop (iOS/Android Berechtigungsdialog) */
+        .gyro-btn {
+            position: relative;
+            z-index: 2;
+            display: none;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
         /* Mobile Anpassungen */
         @media (max-width: 900px) {
             .links-container {
@@ -340,6 +361,8 @@
 
     <div class="custom-cursor cursor-dot" id="cursorDot"></div>
     <div class="custom-cursor cursor-ring" id="cursorRing"></div>
+
+    <button class="gyro-btn" id="gyroBtn">Neigungsscrollen aktivieren</button>
 
     <div class="links-container" id="linksBox">
         <a href="mailto:martin@hoelters.online" class="icon-link">
@@ -751,6 +774,57 @@
                 battery.addEventListener('levelchange', updateBatteryUI);
                 battery.addEventListener('chargingchange', updateBatteryUI);
             }).catch(() => {});
+        }
+
+        // Gyroskop-Scrollen (Wippen des Handys)
+        const gyroBtn = document.getElementById('gyroBtn');
+        let gyroActive = false;
+        let baseBeta = null; // Neigung nach vorne/hinten
+
+        if (window.DeviceOrientationEvent) {
+            // Zeige Button auf mobilen Geräten an
+            if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+                gyroBtn.style.display = 'block';
+            }
+        }
+
+        gyroBtn.addEventListener('click', () => {
+            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(response => {
+                        if (response === 'granted') {
+                            startGyro();
+                        }
+                    }).catch(console.error);
+            } else {
+                startGyro();
+            }
+        });
+
+        function startGyro() {
+            gyroActive = true;
+            gyroBtn.style.display = 'none';
+
+            window.addEventListener('deviceorientation', (event) => {
+                if (!gyroActive) return;
+                
+                let beta = event.beta; // Neigung vor/zurück (-180 bis 180)
+                if (beta === null) return;
+
+                if (baseBeta === null) {
+                    baseBeta = beta; // Startposition als Referenz
+                }
+
+                let diff = beta - baseBeta;
+                // Wenn man das Handy nach vorne/hinten neigt (> 3 Grad Schwelle)
+                if (Math.abs(diff) > 3) {
+                    let scrollSpeed = diff * 1.5;
+                    window.scrollBy({
+                        top: scrollSpeed,
+                        behavior: 'smooth'
+                    });
+                }
+            });
         }
     </script>
 

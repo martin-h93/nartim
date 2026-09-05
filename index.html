@@ -12,48 +12,40 @@
             outline: none !important;
             -webkit-tap-highlight-color: transparent;
         }
-        
         body, .links-container {
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
         }
-        
         :root {
             --icon-filter: none;
         }
-
         @media (prefers-color-scheme: dark) {
             :root {
                 --icon-filter: invert(1) drop-shadow(0 0 2px rgba(255,255,255,0.2));
             }
         }
-
         @keyframes lavaGradient1 {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-
         @keyframes lavaGradient2 {
             0% { background-position: 50% 0%; }
             50% { background-position: 50% 100%; }
             100% { background-position: 50% 0%; }
         }
-
         @keyframes lavaGradient3 {
             0% { background-position: 0% 0%; }
             50% { background-position: 100% 100%; }
             100% { background-position: 0% 0%; }
         }
-
         @keyframes lavaGradient4 {
             0% { background-position: 100% 0%; }
             50% { background-position: 0% 100%; }
             100% { background-position: 100% 0%; }
         }
-
         html, body {
             width: 100%;
             min-height: 100vh;
@@ -62,7 +54,6 @@
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
-
         body {
             background-size: 500% 500%;
             display: flex;
@@ -72,11 +63,43 @@
             gap: 20px;
             padding: 40px 16px;
             font-family: sans-serif;
-            transition: background 1s ease;
+            transition: background 1s ease, filter 2s ease;
             cursor: default;
         }
-
-        #particleCanvas {
+        body.idle-mode {
+            filter: saturate(0.72) brightness(0.82);
+        }
+        body.void-mode {
+            background: #030305 !important;
+            animation: none !important;
+        }
+        body.void-mode .links-container {
+            background: rgba(10, 10, 15, 0.9);
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 16px 50px rgba(0, 0, 0, 0.9), inset 0 0 20px rgba(120, 80, 255, 0.05);
+        }
+        body.void-mode .custom-cursor.cursor-dot {
+            background-color: rgba(200, 160, 255, 0.95);
+            box-shadow: 0 0 14px rgba(180, 120, 255, 0.95);
+        }
+        body.void-mode .custom-cursor.cursor-ring {
+            border-color: rgba(180, 120, 255, 0.45);
+        }
+        body.bit-8-mode {
+            font-family: monospace, monospace !important;
+        }
+        body.bit-8-mode .links-container {
+            border-radius: 0 !important;
+            border: 4px solid #fff !important;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65) !important;
+        }
+        body.bit-8-mode .icon-wrapper {
+            filter: invert(1) brightness(200%) !important;
+        }
+        body.bit-8-mode .custom-cursor {
+            border-radius: 0 !important;
+        }
+        #particleCanvas, #voidCanvas {
             position: fixed;
             top: 0;
             left: 0;
@@ -85,7 +108,14 @@
             pointer-events: none;
             z-index: 1;
         }
-
+        #voidCanvas {
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+        body.void-mode #voidCanvas {
+            opacity: 1;
+        }
         #trailCanvas {
             position: fixed;
             top: 0;
@@ -95,7 +125,6 @@
             pointer-events: none;
             z-index: 9998;
         }
-
         .custom-cursor {
             position: fixed;
             top: 0;
@@ -104,30 +133,22 @@
             z-index: 9999;
             border-radius: 50%;
             transform: translate(-50%, -50%);
-            transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
-                        height 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
-                        background-color 0.2s ease, 
-                        border 0.2s ease,
-                        backdrop-filter 0.2s ease;
+            transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), height 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, border 0.2s ease, backdrop-filter 0.2s ease;
         }
-
         .cursor-dot {
             width: 6px;
             height: 6px;
             background-color: rgba(255, 255, 255, 0.95);
             box-shadow: 0 0 12px rgba(255, 255, 255, 0.95);
         }
-
         .cursor-ring {
             width: 38px;
             height: 38px;
             border: 1.5px solid rgba(255, 255, 255, 0.45);
         }
-
         body.hovering .cursor-dot {
             transform: translate(-50%, -50%) scale(0);
         }
-
         body.hovering .cursor-ring {
             width: 74px;
             height: 74px;
@@ -137,13 +158,16 @@
             -webkit-backdrop-filter: blur(3px);
             box-shadow: 0 0 30px rgba(255, 255, 255, 0.2), inset 0 0 15px rgba(255, 255, 255, 0.15);
         }
-
+        body.void-mode.hovering .cursor-ring {
+            border-color: rgba(180, 120, 255, 0.9);
+            background-color: rgba(180, 120, 255, 0.08);
+            box-shadow: 0 0 30px rgba(180, 120, 255, 0.2), inset 0 0 15px rgba(180, 120, 255, 0.15);
+        }
         body.is-holding .cursor-dot {
             transform: translate(-50%, -50%) scale(2.2);
             background-color: rgba(255, 255, 255, 1);
             box-shadow: 0 0 25px rgba(255, 255, 255, 1), 0 0 50px rgba(255, 255, 255, 0.5);
         }
-
         body.is-holding .cursor-ring {
             width: 22px;
             height: 22px;
@@ -151,7 +175,6 @@
             background-color: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(6px);
         }
-
         .click-ripple {
             position: fixed;
             top: 0;
@@ -165,24 +188,18 @@
             z-index: 10000;
             animation: rippleAnim 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-
-        @keyframes rippleAnim {
-            0% {
-                width: 20px;
-                height: 20px;
-                opacity: 1;
-                border-color: rgba(255, 255, 255, 0.9);
-                box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-            }
-            100% {
-                width: 120px;
-                height: 120px;
-                opacity: 0;
-                border-color: rgba(255, 255, 255, 0);
-                box-shadow: 0 0 25px rgba(255, 255, 255, 0);
-            }
+        body.void-mode .click-ripple {
+            border-color: rgba(180, 120, 255, 0.8);
+            animation: rippleAnimVoid 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-
+        @keyframes rippleAnim {
+            0% { width: 20px; height: 20px; opacity: 1; border-color: rgba(255, 255, 255, 0.9); box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            100% { width: 120px; height: 120px; opacity: 0; border-color: rgba(255, 255, 255, 0); box-shadow: 0 0 25px rgba(255, 255, 255, 0); }
+        }
+        @keyframes rippleAnimVoid {
+            0% { width: 20px; height: 20px; opacity: 1; border-color: rgba(180, 120, 255, 0.9); box-shadow: 0 0 10px rgba(180, 120, 255, 0.5); }
+            100% { width: 120px; height: 120px; opacity: 0; border-color: rgba(180, 120, 255, 0); box-shadow: 0 0 25px rgba(180, 120, 255, 0); }
+        }
         .links-container {
             position: relative;
             z-index: 2;
@@ -199,22 +216,16 @@
             padding: 32px 48px;
             border-radius: 28px;
             box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65);
-            transition: transform 0.1s ease-out, filter 0.1s ease-out;
+            transition: transform 0.1s ease-out, filter 0.1s ease-out, background 0.3s ease, border-color 0.3s ease;
             max-width: 100%;
         }
-
-        .icon-link,
-        .icon-link:hover,
-        .icon-link:focus,
-        .icon-link:active,
-        .icon-link:visited {
+        .icon-link, .icon-link:hover, .icon-link:focus, .icon-link:active, .icon-link:visited {
             display: inline-block;
             text-decoration: none;
             outline: none !important;
             border: none !important;
             box-shadow: none !important;
         }
-
         .icon-wrapper {
             position: relative;
             width: 210px;
@@ -222,7 +233,6 @@
             filter: var(--icon-filter);
             transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-
         .icon-wrapper img {
             position: absolute;
             top: 0;
@@ -234,23 +244,18 @@
             outline: none !important;
             pointer-events: none;
         }
-
         .icon-hover {
             display: none;
         }
-
         .icon-link:hover .icon-wrapper {
             transform: scale(1.25);
         }
-
         .icon-link:hover .icon-default {
             display: none;
         }
-
         .icon-link:hover .icon-hover {
             display: block;
         }
-
         .battery-widget {
             position: relative;
             z-index: 2;
@@ -268,7 +273,11 @@
             letter-spacing: 0.5px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
         }
-
+        body.void-mode .battery-widget {
+            background: rgba(15, 15, 25, 0.8);
+            border-color: rgba(180, 120, 255, 0.2);
+            color: rgba(180, 120, 255, 0.85);
+        }
         .battery-icon-container {
             position: relative;
             width: 26px;
@@ -279,7 +288,9 @@
             display: flex;
             align-items: center;
         }
-
+        body.void-mode .battery-icon-container {
+            border-color: rgba(180, 120, 255, 0.8);
+        }
         .battery-icon-container::after {
             content: '';
             position: absolute;
@@ -290,7 +301,9 @@
             background: rgba(255, 255, 255, 0.8);
             border-radius: 0 1px 1px 0;
         }
-
+        body.void-mode .battery-icon-container::after {
+            background: rgba(180, 120, 255, 0.8);
+        }
         .battery-level-fill {
             height: 100%;
             background: rgba(255, 255, 255, 0.9);
@@ -298,12 +311,14 @@
             width: 0%;
             transition: width 0.3s ease;
         }
-
+        body.void-mode .battery-level-fill {
+            background: rgba(180, 120, 255, 0.9);
+            box-shadow: 0 0 8px rgba(180, 120, 255, 0.6);
+        }
         .battery-widget.charging .battery-level-fill {
             background: #4ade80;
             box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
         }
-
         .gyro-btn {
             position: relative;
             z-index: 2;
@@ -318,7 +333,42 @@
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
-
+        .idle-message {
+            position: fixed;
+            left: 50%;
+            bottom: 34px;
+            transform: translateX(-50%) translateY(15px);
+            z-index: 9997;
+            padding: 18px 26px;
+            color: rgba(210, 190, 255, 0.9);
+            background: rgba(10, 5, 20, 0.72);
+            border: 1px solid rgba(180, 120, 255, 0.18);
+            font-family: monospace, monospace;
+            font-size: 16px;
+            letter-spacing: 0.5px;
+            opacity: 0;
+            pointer-events: none;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: 0 0 30px rgba(100, 50, 180, 0.12), inset 0 0 20px rgba(100, 50, 180, 0.05);
+            transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), background 1s ease, color 1s ease;
+        }
+        .idle-prompt {
+            color: rgba(255, 255, 255, 0.35);
+            margin-right: 8px;
+        }
+        .idle-cursor {
+            margin-left: 3px;
+            animation: idleBlink 1s steps(1) infinite;
+        }
+        @keyframes idleBlink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        body.idle-mode .idle-message {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
         @media (max-width: 900px) {
             .links-container {
                 display: grid;
@@ -329,20 +379,25 @@
                 width: 90%;
                 max-width: 360px;
             }
-
             .links-container a:last-child {
                 grid-column: span 2;
                 justify-self: center;
             }
-
             .icon-wrapper {
                 width: 110px;
                 height: 110px;
             }
         }
-
+        @media (max-width: 600px) {
+            .idle-message {
+                bottom: 20px;
+                max-width: calc(100vw - 32px);
+                white-space: nowrap;
+                font-size: 14px;
+            }
+        }
         @media (hover: none) and (pointer: coarse) {
-            .custom-cursor, #particleCanvas, #trailCanvas {
+            .custom-cursor, #particleCanvas, #trailCanvas, #voidCanvas {
                 display: none;
             }
             body {
@@ -354,6 +409,7 @@
 <body>
 
     <canvas id="particleCanvas"></canvas>
+    <canvas id="voidCanvas"></canvas>
     <canvas id="trailCanvas"></canvas>
 
     <div class="custom-cursor cursor-dot" id="cursorDot"></div>
@@ -368,28 +424,24 @@
                 <img src="mail-icon2.png" alt="" class="icon-hover">
             </div>
         </a>
-
         <a href="https://steamcommunity.com/id/nartim" target="_blank" rel="noopener noreferrer" class="icon-link">
             <div class="icon-wrapper">
                 <img src="steam.png" alt="" class="icon-default">
                 <img src="steam2.png" alt="" class="icon-hover">
             </div>
         </a>
-
         <a href="https://instagram.com/itsyaboimartin" target="_blank" rel="noopener noreferrer" class="icon-link">
             <div class="icon-wrapper">
                 <img src="instagram.png" alt="" class="icon-default">
                 <img src="instagram2.png" alt="" class="icon-hover">
             </div>
         </a>
-
         <a href="https://letterboxd.com/nartim" target="_blank" rel="noopener noreferrer" class="icon-link">
             <div class="icon-wrapper">
                 <img src="letterboxd.png" alt="" class="icon-default">
                 <img src="letterboxd2.png" alt="" class="icon-hover">
             </div>
         </a>
-
         <a href="https://open.spotify.com/user/martindergott" target="_blank" rel="noopener noreferrer" class="icon-link">
             <div class="icon-wrapper">
                 <img src="spotify.png" alt="" class="icon-default">
@@ -405,10 +457,15 @@
         <span id="batteryText">--%</span>
     </div>
 
+    <div class="idle-message" id="idleMessage">
+        <span class="idle-prompt">martin@nartim:~$</span>
+        <span id="idleText"></span>
+        <span class="idle-cursor">_</span>
+    </div>
+
     <script>
         const canvas = document.getElementById('particleCanvas');
         const ctx = canvas.getContext('2d');
-
         let particles = [];
         const particleCount = 35;
 
@@ -418,9 +475,52 @@
             const tCanvas = document.getElementById('trailCanvas');
             tCanvas.width = window.innerWidth;
             tCanvas.height = window.innerHeight;
+            const vCanvas = document.getElementById('voidCanvas');
+            vCanvas.width = window.innerWidth;
+            vCanvas.height = window.innerHeight;
         }
+
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
+
+        const vCanvas = document.getElementById('voidCanvas');
+        const vCtx = vCanvas.getContext('2d');
+        let voidOrbs = [];
+
+        for (let i = 0; i < 18; i++) {
+            voidOrbs.push({
+                x: Math.random() * vCanvas.width,
+                y: Math.random() * vCanvas.height,
+                radius: Math.random() * 140 + 60,
+                speedX: (Math.random() - 0.5) * 0.4,
+                speedY: (Math.random() - 0.5) * 0.4,
+                alpha: Math.random() * 0.15 + 0.05
+            });
+        }
+
+        function drawVoidDrift() {
+            if (!document.body.classList.contains('void-mode')) {
+                return;
+            }
+            vCtx.fillStyle = 'rgba(3, 3, 5, 0.25)';
+            vCtx.fillRect(0, 0, vCanvas.width, vCanvas.height);
+            voidOrbs.forEach(orb => {
+                orb.x += orb.speedX;
+                orb.y += orb.speedY;
+                if (orb.x < -150) orb.x = vCanvas.width + 150;
+                if (orb.x > vCanvas.width + 150) orb.x = -150;
+                if (orb.y < -150) orb.y = vCanvas.height + 150;
+                if (orb.y > vCanvas.height + 150) orb.y = -150;
+                let grad = vCtx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, orb.radius);
+                grad.addColorStop(0, `rgba(138, 43, 226, ${orb.alpha})`);
+                grad.addColorStop(0.5, `rgba(75, 0, 130, ${orb.alpha * 0.5})`);
+                grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                vCtx.fillStyle = grad;
+                vCtx.beginPath();
+                vCtx.arc(orb.x, orb.y, orb.radius, 0, Math.PI * 2);
+                vCtx.fill();
+            });
+        }
 
         class Particle {
             constructor(x, y, customSpeedX, customSpeedY, customSize) {
@@ -436,6 +536,7 @@
                     this.reset();
                 }
             }
+
             reset() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
@@ -445,15 +546,26 @@
                 this.opacity = Math.random() * 0.4 + 0.1;
                 this.isBurst = false;
             }
+
             update() {
                 if (this.isBurst) {
                     this.x += this.speedX;
                     this.y += this.speedY;
                     this.speedX *= 0.92;
                     this.speedY *= 0.92;
-
                     if (Math.abs(this.speedX) < 0.1 && Math.abs(this.speedY) < 0.1) {
                         this.isBurst = false;
+                        this.speedY = -(Math.random() * 0.4 + 0.2);
+                        this.speedX = (Math.random() - 0.5) * 0.3;
+                    }
+                } else if (this.isHeartForm) {
+                } else if (this.isCoolingDown) {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    this.speedX *= 0.96;
+                    this.speedY *= 0.96;
+                    if (Math.abs(this.speedX) <= 0.3 && Math.abs(this.speedY) <= 0.5) {
+                        this.isCoolingDown = false;
                         this.speedY = -(Math.random() * 0.4 + 0.2);
                         this.speedX = (Math.random() - 0.5) * 0.3;
                     }
@@ -466,8 +578,8 @@
                 let dy = mouseY - this.y;
                 let distance = Math.sqrt(dx * dx + dy * dy);
                 let maxDistance = 120;
-
                 let isHolding = document.body.classList.contains('is-holding');
+
                 if (isHolding) {
                     let dist = distance;
                     if (dist > 5) {
@@ -475,7 +587,7 @@
                         this.y += (dy / dist) * 2.5;
                     }
                 } else if (distance < maxDistance) {
-                    let force = (1 - (distance / maxDistance));
+                    let force = 1 - (distance / maxDistance);
                     let angle = Math.atan2(dy, dx);
                     this.x -= Math.cos(angle) * force * 3;
                     this.y -= Math.sin(angle) * force * 3;
@@ -493,12 +605,23 @@
                     this.x = Math.random() * canvas.width;
                 }
             }
+
             draw() {
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-                ctx.shadowBlur = 8;
-                ctx.shadowColor = 'rgba(255, 255, 255, 0.3)';
+                if (document.body.classList.contains('bit-8-mode')) {
+                    ctx.rect(this.x - this.size, this.y - this.size, this.size * 2, this.size * 2);
+                } else {
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                }
+                let isVoid = document.body.classList.contains('void-mode');
+                if (this.isGold) {
+                    ctx.fillStyle = `rgba(255, 215, 0, ${this.opacity})`;
+                    ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
+                } else {
+                    ctx.fillStyle = isVoid ? `rgba(180, 140, 255, ${this.opacity})` : `rgba(255, 255, 255, ${this.opacity})`;
+                    ctx.shadowColor = isVoid ? 'rgba(138, 43, 226, 0.5)' : 'rgba(255, 255, 255, 0.3)';
+                }
+                ctx.shadowBlur = document.body.classList.contains('bit-8-mode') ? 0 : 8;
                 ctx.fill();
                 ctx.shadowBlur = 0;
             }
@@ -518,7 +641,6 @@
             scrollVelocity += e.deltaY * 0.15;
             targetScrollScale += e.deltaY * 0.0008;
             targetScrollRotate += e.deltaY * 0.015;
-            
             targetScrollScale = Math.max(0.92, Math.min(1.08, targetScrollScale));
         }, { passive: true });
 
@@ -530,7 +652,7 @@
         const dot = document.getElementById('cursorDot');
         const ring = document.getElementById('cursorRing');
         const linksBox = document.getElementById('linksBox');
-        
+
         let mouseX = window.innerWidth / 2;
         let mouseY = window.innerHeight / 2;
         let ringX = mouseX;
@@ -547,27 +669,17 @@
 
         window.addEventListener('mousedown', (e) => {
             if (e.button !== 0) return;
-            
             const ripple = document.createElement('div');
             ripple.className = 'click-ripple';
             ripple.style.left = `${e.clientX}px`;
             ripple.style.top = `${e.clientY}px`;
             document.body.appendChild(ripple);
-            
-            setTimeout(() => {
-                ripple.remove();
-            }, 500);
+            setTimeout(() => { ripple.remove(); }, 500);
 
             for (let i = 0; i < 24; i++) {
                 const angle = Math.random() * Math.PI * 2;
                 const speed = Math.random() * 6 + 1.5;
-                particles.push(new Particle(
-                    e.clientX, 
-                    e.clientY, 
-                    Math.cos(angle) * speed, 
-                    Math.sin(angle) * speed,
-                    Math.random() * 3 + 1
-                ));
+                particles.push(new Particle(e.clientX, e.clientY, Math.cos(angle) * speed, Math.sin(angle) * speed, Math.random() * 3 + 1));
             }
 
             holdTimeout = setTimeout(() => {
@@ -580,17 +692,170 @@
             document.body.classList.remove('is-holding');
         });
 
+        const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
+        let konamiIndex = 0;
+        let konamiStage = 0;
+
+        window.addEventListener('keydown', (e) => {
+            if (e.code === konamiCode[konamiIndex]) {
+                konamiIndex++;
+                if (konamiIndex === konamiCode.length) {
+                    konamiStage = (konamiStage + 1) % 4;
+                    if (konamiStage === 1) {
+                        triggerZeldaHearts(false);
+                    } else if (konamiStage === 2) {
+                        triggerZeldaHearts(true);
+                    } else if (konamiStage === 3) {
+                        document.body.classList.add('bit-8-mode');
+                        triggerZeldaHearts(false);
+                    } else {
+                        document.body.classList.remove('bit-8-mode');
+                        triggerZeldaHearts(false);
+                    }
+                    konamiIndex = 0;
+                }
+            } else {
+                konamiIndex = 0;
+            }
+
+            let typedBuffer = "";
+            if (e.key.length === 1) {
+                typedBuffer += e.key.toLowerCase();
+                if (typedBuffer.length > 20) {
+                    typedBuffer = typedBuffer.slice(-20);
+                }
+                if (typedBuffer.includes('void') || typedBuffer.includes('abstract') || typedBuffer.includes('zen')) {
+                    document.body.classList.remove('bit-8-mode');
+                    document.body.classList.toggle('void-mode');
+                    typedBuffer = "";
+                } else if (typedBuffer.includes('cyber')) {
+                    applyTheme('linear-gradient(45deg, #050505, #00ffcc, #ff007f)', '#000');
+                    typedBuffer = "";
+                } else if (typedBuffer.includes('sunset')) {
+                    applyTheme('linear-gradient(135deg, #ff512f, #dd2476, #2b1055)', '#11051c');
+                    typedBuffer = "";
+                } else if (typedBuffer.includes('monochrome')) {
+                    applyTheme('linear-gradient(0deg, #111111, #333333, #000000)', '#0a0a0a');
+                    typedBuffer = "";
+                } else if (typedBuffer.includes('vapor')) {
+                    applyTheme('linear-gradient(45deg, #ff71ce, #01cdfe, #b967ff)', '#120524');
+                    typedBuffer = "";
+                } else if (typedBuffer.includes('hell')) {
+                    applyTheme('linear-gradient(135deg, #430000, #800000, #ff4500)', '#1a0000');
+                    typedBuffer = "";
+                } else if (typedBuffer.includes('ice')) {
+                    applyTheme('linear-gradient(135deg, #000428, #004e92, #4ca1af)', '#020d1a');
+                    typedBuffer = "";
+                }
+            }
+
+            let inputSequence = [];
+            inputSequence.push(e.code);
+            if (inputSequence.length > 5) {
+                inputSequence.shift();
+            }
+            let seqString = inputSequence.join(',');
+            if (seqString.includes('ArrowDown,ArrowRight,Space') || seqString.includes('KeyS,KeyD,Space')) {
+                triggerHadokenBeam(1);
+                inputSequence = [];
+            } else if (seqString.includes('ArrowDown,ArrowLeft,Space') || seqString.includes('KeyS,KeyA,Space')) {
+                triggerHadokenBeam(-1);
+                inputSequence = [];
+            }
+        });
+
+        function applyTheme(gradient, boxBg) {
+            document.body.classList.remove('void-mode', 'bit-8-mode');
+            document.body.style.background = gradient;
+            document.body.style.backgroundSize = "500% 500%";
+            document.body.style.animation = "lavaGradient1 25s ease infinite";
+            linksBox.style.background = boxBg;
+        }
+
+        function triggerHadokenBeam(direction) {
+            let startX = mouseX;
+            let startY = mouseY;
+            for (let i = 0; i < 70; i++) {
+                const angle = (Math.random() - 0.5) * 0.5;
+                const speed = Math.random() * 18 + 10;
+                let p = new Particle(startX, startY, (Math.cos(angle) * speed + 12) * direction, (Math.random() - 0.5) * 4, Math.random() * 5 + 2);
+                particles.push(p);
+            }
+        }
+
+        const retroHeartMatrix = [
+            [0,1,1,0,0,1,1,0],
+            [1,1,1,1,1,1,1,1],
+            [1,1,1,1,1,1,1,1],
+            [1,1,1,1,1,1,1,1],
+            [0,1,1,1,1,1,1,0],
+            [0,0,1,1,1,1,0,0],
+            [0,0,0,1,1,0,0,0]
+        ];
+
+        function getRetroHeartPoints(centerX, centerY, pixelSize) {
+            let points = [];
+            let rows = retroHeartMatrix.length;
+            let cols = retroHeartMatrix[0].length;
+            let startX = centerX - (cols * pixelSize) / 2;
+            let startY = centerY - (rows * pixelSize) / 2;
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (retroHeartMatrix[r][c] === 1) {
+                        points.push({
+                            x: startX + c * pixelSize + pixelSize / 2,
+                            y: startY + r * pixelSize + pixelSize / 2
+                        });
+                    }
+                }
+            }
+            return points;
+        }
+
+        function triggerZeldaHearts(isGold) {
+            particles = [];
+            const boxRect = linksBox.getBoundingClientRect();
+            let cx = window.innerWidth / 2;
+            let cy = boxRect.bottom + 65;
+            let offsets = [-130, 0, 130];
+            offsets.forEach(offsetX => {
+                let heartPoints = getRetroHeartPoints(cx + offsetX, cy, 10);
+                heartPoints.forEach(pt => {
+                    let startX = Math.random() * window.innerWidth;
+                    let startY = Math.random() * window.innerHeight;
+                    let p = new Particle(startX, startY, 0, 0, 4.5);
+                    p.targetX = pt.x;
+                    p.targetY = pt.y;
+                    p.isHeartForm = true;
+                    p.isBurst = false;
+                    p.isCoolingDown = false;
+                    p.isGold = isGold;
+                    p.opacity = 0.95;
+                    particles.push(p);
+                });
+            });
+            setTimeout(() => {
+                particles.forEach(p => {
+                    if (p.isHeartForm) {
+                        p.isHeartForm = false;
+                        let angle = Math.random() * Math.PI * 2;
+                        let speed = Math.random() * 14 + 8;
+                        p.speedX = Math.cos(angle) * speed;
+                        p.speedY = Math.sin(angle) * speed;
+                        p.isCoolingDown = true;
+                    }
+                });
+            }, 4000);
+        }
+
         function renderLoop() {
             scrollVelocity *= 0.88;
             targetScrollScale += (1 - targetScrollScale) * 0.1;
             targetScrollRotate *= 0.88;
-
             currentScrollScale += (targetScrollScale - currentScrollScale) * 0.15;
             currentScrollRotate += (targetScrollRotate - currentScrollRotate) * 0.15;
-
             let boxTransform = `scale(${currentScrollScale}) rotate(${currentScrollRotate}deg)`;
             let boxBlur = Math.abs(scrollVelocity) * 0.15;
-            
             linksBox.style.transform = boxTransform;
             linksBox.style.filter = boxBlur > 0.5 ? `blur(${Math.min(boxBlur, 4)}px)` : 'none';
 
@@ -600,11 +865,9 @@
             let vy = (targetY - ringY) * 0.22;
             ringX += vx;
             ringY += vy;
-
             currentVelocity = Math.sqrt(vx * vx + vy * vy);
             let stretch = Math.min(currentVelocity * 0.04, 0.5);
             let angle = Math.atan2(vy, vx);
-
             let scrollPulse = Math.abs(scrollVelocity) * 0.05;
 
             if (!document.body.classList.contains('is-holding')) {
@@ -619,7 +882,15 @@
             }
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawVoidDrift();
+
             particles.forEach(p => {
+                if (p.isHeartForm) {
+                    let dx = p.targetX - p.x;
+                    let dy = p.targetY - p.y;
+                    p.x += dx * 0.025;
+                    p.y += dy * 0.025;
+                }
                 p.update();
                 p.draw();
             });
@@ -631,26 +902,24 @@
                 for (let i = 1; i < history.length; i++) {
                     tCtx.lineTo(history[i].x, history[i].y);
                 }
-                
+                let isVoid = document.body.classList.contains('void-mode');
                 let gradient = tCtx.createLinearGradient(history[0].x, history[0].y, ringX, ringY);
-                gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
-                gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.15)');
-                gradient.addColorStop(1, 'rgba(255, 255, 255, 0.65)');
-                
+                gradient.addColorStop(0, isVoid ? 'rgba(138, 43, 226, 0)' : 'rgba(255, 255, 255, 0)');
+                gradient.addColorStop(0.5, isVoid ? 'rgba(138, 43, 226, 0.15)' : 'rgba(255, 255, 255, 0.15)');
+                gradient.addColorStop(1, isVoid ? 'rgba(186, 85, 211, 0.65)' : 'rgba(255, 255, 255, 0.65)');
                 tCtx.strokeStyle = gradient;
                 tCtx.lineWidth = Math.max(4, 48 - (history.length * 1.5) + Math.abs(scrollVelocity));
-                tCtx.lineCap = 'round';
-                tCtx.lineJoin = 'round';
-                
-                tCtx.shadowBlur = 18;
-                tCtx.shadowColor = 'rgba(255, 255, 255, 0.5)';
-                
+                tCtx.lineCap = document.body.classList.contains('bit-8-mode') ? 'butt' : 'round';
+                tCtx.lineJoin = document.body.classList.contains('bit-8-mode') ? 'miter' : 'round';
+                tCtx.shadowBlur = document.body.classList.contains('bit-8-mode') ? 0 : 18;
+                tCtx.shadowColor = isVoid ? 'rgba(138, 43, 226, 0.5)' : 'rgba(255, 255, 255, 0.5)';
                 tCtx.stroke();
                 tCtx.shadowBlur = 0;
             }
 
             requestAnimationFrame(renderLoop);
         }
+
         renderLoop();
 
         const iconLinks = document.querySelectorAll('.icon-link');
@@ -664,46 +933,16 @@
         });
 
         const presets = [
-            {
-                gradient: "linear-gradient(-45deg, #090e17, #150917, #1f0b18, #130e21, #0a171c, #071217)",
-                animation: "lavaGradient1 32s ease infinite"
-            },
-            {
-                gradient: "linear-gradient(135deg, #021a10, #052e16, #022c22, #01120c, #091c14)",
-                animation: "lavaGradient2 28s ease infinite"
-            },
-            {
-                gradient: "linear-gradient(45deg, #12081c, #240a1d, #1a0f2b, #0c0817, #1a0711)",
-                animation: "lavaGradient3 35s ease infinite"
-            },
-            {
-                gradient: "linear-gradient(-135deg, #07141a, #0d1e26, #161026, #1f0d1e, #0d0914)",
-                animation: "lavaGradient4 30s ease infinite"
-            },
-            {
-                gradient: "linear-gradient(60deg, #020c14, #081d1c, #140d24, #210815, #0a1212)",
-                animation: "lavaGradient1 26s ease infinite"
-            },
-            {
-                gradient: "linear-gradient(-60deg, #17070e, #260d1b, #190a26, #09121a, #04100c)",
-                animation: "lavaGradient2 34s ease infinite"
-            },
-            {
-                gradient: "linear-gradient(90deg, #0a1412, #18091a, #290e1b, #121029, #050b12)",
-                animation: "lavaGradient3 38s ease infinite"
-            },
-            {
-                gradient: "linear-gradient(0deg, #070b14, #120917, #1f0e1c, #0e1c17, #03080d)",
-                animation: "lavaGradient4 29s ease infinite"
-            },
-            {
-                gradient: "linear-gradient(-30deg, #0f0817, #1c0d12, #0a1a14, #120f26, #06090f)",
-                animation: "lavaGradient1 31s ease infinite"
-            },
-            {
-                gradient: "linear-gradient(120deg, #051412, #10081c, #260b14, #0b1721, #080c12)",
-                animation: "lavaGradient2 33s ease infinite"
-            }
+            { gradient: "linear-gradient(-45deg, #090e17, #150917, #1f0b18, #130e21, #0a171c, #071217)", animation: "lavaGradient1 32s ease infinite" },
+            { gradient: "linear-gradient(135deg, #021a10, #052e16, #022c22, #01120c, #091c14)", animation: "lavaGradient2 28s ease infinite" },
+            { gradient: "linear-gradient(45deg, #12081c, #240a1d, #1a0f2b, #0c0817, #1a0711)", animation: "lavaGradient3 35s ease infinite" },
+            { gradient: "linear-gradient(-135deg, #07141a, #0d1e26, #161026, #1f0d1e, #0d0914)", animation: "lavaGradient4 30s ease infinite" },
+            { gradient: "linear-gradient(60deg, #020c14, #081d1c, #140d24, #210815, #0a1212)", animation: "lavaGradient1 26s ease infinite" },
+            { gradient: "linear-gradient(-60deg, #17070e, #260d1b, #190a26, #09121a, #04100c)", animation: "lavaGradient2 34s ease infinite" },
+            { gradient: "linear-gradient(90deg, #0a1412, #18091a, #290e1b, #121029, #050b12)", animation: "lavaGradient3 38s ease infinite" },
+            { gradient: "linear-gradient(0deg, #070b14, #120917, #1f0e1c, #0e1c17, #03080d)", animation: "lavaGradient4 29s ease infinite" },
+            { gradient: "linear-gradient(-30deg, #0f0817, #1c0d12, #0a1a14, #120f26, #06090f)", animation: "lavaGradient1 31s ease infinite" },
+            { gradient: "linear-gradient(120deg, #051412, #10081c, #260b14, #0b1721, #080c12)", animation: "lavaGradient2 33s ease infinite" }
         ];
 
         const randomPreset = presets[Math.floor(Math.random() * presets.length)];
@@ -721,7 +960,7 @@
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const seconds = String(now.getSeconds()).padStart(2, '0');
-            return `[${hours}:${minutes}:${seconds}] guest@nartim:~$ `;
+            return `[${hours}:${minutes}:${seconds}] martin@nartim:~$ `;
         }
 
         let fullString = getFullTargetString();
@@ -756,18 +995,15 @@
                     const level = Math.round(battery.level * 100);
                     fill.style.width = level + '%';
                     text.textContent = level + '%';
-
                     if (battery.charging) {
                         widget.classList.add('charging');
                     } else {
                         widget.classList.remove('charging');
                     }
-
                     widget.style.display = 'flex';
                 }
 
                 updateBatteryUI();
-
                 battery.addEventListener('levelchange', updateBatteryUI);
                 battery.addEventListener('chargingchange', updateBatteryUI);
             }).catch(() => {});
@@ -785,12 +1021,11 @@
 
         gyroBtn.addEventListener('click', () => {
             if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-                DeviceOrientationEvent.requestPermission()
-                    .then(response => {
-                        if (response === 'granted') {
-                            startGyro();
-                        }
-                    }).catch(console.error);
+                DeviceOrientationEvent.requestPermission().then(response => {
+                    if (response === 'granted') {
+                        startGyro();
+                    }
+                }).catch(console.error);
             } else {
                 startGyro();
             }
@@ -799,28 +1034,72 @@
         function startGyro() {
             gyroActive = true;
             gyroBtn.style.display = 'none';
-
             window.addEventListener('deviceorientation', (event) => {
                 if (!gyroActive) return;
-                
                 let beta = event.beta;
                 if (beta === null) return;
-
                 if (baseBeta === null) {
                     baseBeta = beta;
                 }
-
                 let diff = beta - baseBeta;
                 if (Math.abs(diff) > 3) {
                     let scrollSpeed = diff * 1.5;
-                    window.scrollBy({
-                        top: scrollSpeed,
-                        behavior: 'smooth'
-                    });
+                    window.scrollBy({ top: scrollSpeed, behavior: 'smooth' });
                 }
             });
         }
-    </script>
 
+        let idleTimer = null;
+        let idleActive = false;
+        let idleTypingTimeout = null;
+
+        const idleMessage = document.getElementById('idleMessage');
+        const idleText = document.getElementById('idleText');
+
+        function typeIdleMessage(text, i = 0) {
+            if (i === 0) {
+                idleText.textContent = '';
+            }
+            if (i < text.length) {
+                idleText.textContent += text.charAt(i);
+                idleTypingTimeout = setTimeout(() => {
+                    typeIdleMessage(text, i + 1);
+                }, 70);
+            }
+        }
+
+        function enterIdleMode() {
+            idleActive = true;
+            document.body.classList.add('idle-mode');
+            let message = 'bist du noch da?';
+            clearTimeout(idleTypingTimeout);
+            typeIdleMessage(message);
+        }
+
+        function leaveIdleMode() {
+            if (!idleActive) return;
+            idleActive = false;
+            clearTimeout(idleTypingTimeout);
+            document.body.classList.remove('idle-mode');
+        }
+
+        function resetIdleTimer() {
+            clearTimeout(idleTimer);
+            clearTimeout(idleTypingTimeout);
+            if (idleActive) {
+                leaveIdleMode();
+            }
+            idleTimer = setTimeout(() => {
+                enterIdleMode();
+            }, 40000);
+        }
+
+        const idleEvents = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'wheel', 'scroll'];
+        idleEvents.forEach(eventName => {
+            window.addEventListener(eventName, resetIdleTimer, { passive: true });
+        });
+
+        resetIdleTimer();
+    </script>
 </body>
 </html>

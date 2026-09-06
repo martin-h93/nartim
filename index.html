@@ -10,7 +10,7 @@
     <meta property="og:url" content="https://nartim.de">
     <style>
         *{margin:0;padding:0;box-sizing:border-box;outline:none!important;-webkit-tap-highlight-color:transparent;}
-        body,.links-container{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
+        body,.links-container{user-select:none;}
         :root{--icon-filter:none;}
         @media(prefers-color-scheme:dark){:root{--icon-filter:invert(1) drop-shadow(0 0 2px rgba(255,255,255,0.2));}}
         @keyframes lavaGradient1{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
@@ -28,7 +28,7 @@
         body.bit-8-mode .icon-wrapper{filter:var(--icon-filter)!important;}
         body.bit-8-mode .custom-cursor{border-radius:0!important;}
         body.star-mode{animation:rainbowBg 1s linear infinite!important;}
-        body.star-mode .links-container{animation:none!important;border-color:#ff00ff!important;animation:rainbowChaos 0.2s linear infinite!important;}
+        body.star-mode .links-container{border-color:#ff00ff!important;animation:rainbowChaos 0.2s linear infinite!important;}
         #particleCanvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;}
         #trailCanvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9998;}
         .custom-cursor{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;border-radius:50%;transform:translate(-50%,-50%);transition:width 0.25s cubic-bezier(0.16,1,0.3,1),height 0.25s cubic-bezier(0.16,1,0.3,1),background-color 0.2s ease,border 0.2s ease,backdrop-filter 0.2s ease;}
@@ -87,31 +87,31 @@
     <div class="custom-cursor cursor-ring" id="cursorRing"></div>
 
     <div class="links-container" id="linksBox">
-        <a href="mailto:martin@hoelters.online" class="icon-link">
+        <a href="mailto:martin@hoelters.online" class="icon-link" aria-label="E-Mail schreiben">
             <div class="icon-wrapper">
                 <img src="./mail-icon.png" alt="" class="icon-default">
                 <img src="./mail-icon2.png" alt="" class="icon-hover">
             </div>
         </a>
-        <a href="https://steamcommunity.com/id/nartim" target="_blank" rel="noopener noreferrer" class="icon-link">
+        <a href="https://steamcommunity.com/id/nartim" target="_blank" rel="noopener noreferrer" class="icon-link" aria-label="Steam Profil">
             <div class="icon-wrapper">
                 <img src="./steam.png" alt="" class="icon-default">
                 <img src="./steam2.png" alt="" class="icon-hover">
             </div>
         </a>
-        <a href="https://instagram.com/itsyaboimartin" target="_blank" rel="noopener noreferrer" class="icon-link">
+        <a href="https://instagram.com/itsyaboimartin" target="_blank" rel="noopener noreferrer" class="icon-link" aria-label="Instagram Profil">
             <div class="icon-wrapper">
                 <img src="./instagram.png" alt="" class="icon-default">
                 <img src="./instagram2.png" alt="" class="icon-hover">
             </div>
         </a>
-        <a href="https://letterboxd.com/nartim" target="_blank" rel="noopener noreferrer" class="icon-link">
+        <a href="https://letterboxd.com/nartim" target="_blank" rel="noopener noreferrer" class="icon-link" aria-label="Letterboxd Profil">
             <div class="icon-wrapper">
                 <img src="./letterboxd.png" alt="" class="icon-default">
                 <img src="./letterboxd2.png" alt="" class="icon-hover">
             </div>
         </a>
-        <a href="https://open.spotify.com/user/martindergott" target="_blank" rel="noopener noreferrer" class="icon-link">
+        <a href="https://open.spotify.com/user/martindergott" target="_blank" rel="noopener noreferrer" class="icon-link" aria-label="Spotify Profil">
             <div class="icon-wrapper">
                 <img src="./spotify.png" alt="" class="icon-default">
                 <img src="./spotify2.png" alt="" class="icon-hover">
@@ -126,178 +126,199 @@
     </div>
 
     <script>
-        let ac=null;
+        const TIMING_IDLE_DELAY = 40000;
+        const TIMING_TYPE_SPEED = 70;
+        const TIMING_DELETE_SPEED = 40;
+        const TIMING_TITLE_SPEED = 80;
+        const TIMING_SPECIAL_TIMEOUT = 15000;
+
+        let ac = null;
         function getAudioContext(){
-            if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();
-            if(ac.state==='suspended')ac.resume();
+            if(!ac){
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if(AudioCtx) ac = new AudioCtx();
+            }
+            if(ac && ac.state === 'suspended'){
+                ac.resume().catch(()=>{});
+            }
             return ac;
         }
+
         function playSound(type){
             try{
-                const ctx=getAudioContext(),t=ctx.currentTime;
-                if(type==='click'){
-                    const o=ctx.createOscillator(),g=ctx.createGain();
-                    o.type='sine';o.frequency.setValueAtTime(450,t);o.frequency.exponentialRampToValueAtTime(150,t+0.08);
-                    g.gain.setValueAtTime(0.12,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.08);
-                    o.connect(g);g.connect(ctx.destination);o.start();o.stop(t+0.08);
-                }else if(type==='hover'){
-                    const o=ctx.createOscillator(),g=ctx.createGain();
-                    o.type='triangle';o.frequency.setValueAtTime(600,t);o.frequency.exponentialRampToValueAtTime(800,t+0.04);
-                    g.gain.setValueAtTime(0.03,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.04);
-                    o.connect(g);g.connect(ctx.destination);o.start();o.stop(t+0.04);
-                }else if(type==='holdStart'){
-                    const o=ctx.createOscillator(),g=ctx.createGain();
-                    o.type='sine';o.frequency.setValueAtTime(220,t);o.frequency.linearRampToValueAtTime(330,t+0.15);
-                    g.gain.setValueAtTime(0.01,t);g.gain.linearRampToValueAtTime(0.08,t+0.15);g.gain.exponentialRampToValueAtTime(0.001,t+0.2);
-                    o.connect(g);g.connect(ctx.destination);o.start();o.stop(t+0.2);
-                }else if(type==='release'){
-                    [587.33, 783.99, 1046.50].forEach((f,i)=>{
-                        const o=ctx.createOscillator(),g=ctx.createGain();
-                        o.type='sine';o.frequency.setValueAtTime(f,t+i*0.04);
-                        g.gain.setValueAtTime(0.001,t+i*0.04);g.gain.linearRampToValueAtTime(0.04,t+i*0.04+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t+i*0.04+0.18);
-                        o.connect(g);g.connect(ctx.destination);o.start(t+i*0.04);o.stop(t+i*0.04+0.18);
+                const ctx = getAudioContext();
+                if(!ctx) return;
+                const t = ctx.currentTime;
+                if(type === 'click'){
+                    const o = ctx.createOscillator(), g = ctx.createGain();
+                    o.type = 'sine'; o.frequency.setValueAtTime(450, t); o.frequency.exponentialRampToValueAtTime(150, t + 0.08);
+                    g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+                    o.connect(g); g.connect(ctx.destination); o.start(); o.stop(t + 0.08);
+                }else if(type === 'hover'){
+                    const o = ctx.createOscillator(), g = ctx.createGain();
+                    o.type = 'triangle'; o.frequency.setValueAtTime(600, t); o.frequency.exponentialRampToValueAtTime(800, t + 0.04);
+                    g.gain.setValueAtTime(0.03, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+                    o.connect(g); g.connect(ctx.destination); o.start(); o.stop(t + 0.04);
+                }else if(type === 'holdStart'){
+                    const o = ctx.createOscillator(), g = ctx.createGain();
+                    o.type = 'sine'; o.frequency.setValueAtTime(220, t); o.frequency.linearRampToValueAtTime(330, t + 0.15);
+                    g.gain.setValueAtTime(0.01, t); g.gain.linearRampToValueAtTime(0.08, t + 0.15); g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+                    o.connect(g); g.connect(ctx.destination); o.start(); o.stop(t + 0.2);
+                }else if(type === 'release'){
+                    [587.33, 783.99, 1046.50].forEach((f, i) => {
+                        const o = ctx.createOscillator(), g = ctx.createGain();
+                        o.type = 'sine'; o.frequency.setValueAtTime(f, t + i * 0.04);
+                        g.gain.setValueAtTime(0.001, t + i * 0.04); g.gain.linearRampToValueAtTime(0.04, t + i * 0.04 + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.04 + 0.18);
+                        o.connect(g); g.connect(ctx.destination); o.start(t + i * 0.04); o.stop(t + i * 0.04 + 0.18);
                     });
-                }else if(type==='allCaptured'){
-                    [440, 554.37, 659.25, 880].forEach((f,i)=>{
-                        const o=ctx.createOscillator(),g=ctx.createGain();
-                        o.type='sine';o.frequency.setValueAtTime(f,t+i*0.05);
-                        g.gain.setValueAtTime(0.001,t+i*0.05);g.gain.linearRampToValueAtTime(0.045,t+i*0.05+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t+i*0.05+0.22);
-                        o.connect(g);g.connect(ctx.destination);o.start(t+i*0.05);o.stop(t+i*0.05+0.22);
+                }else if(type === 'allCaptured'){
+                    [440, 554.37, 659.25, 880].forEach((f, i) => {
+                        const o = ctx.createOscillator(), g = ctx.createGain();
+                        o.type = 'sine'; o.frequency.setValueAtTime(f, t + i * 0.05);
+                        g.gain.setValueAtTime(0.001, t + i * 0.05); g.gain.linearRampToValueAtTime(0.045, t + i * 0.05 + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.05 + 0.22);
+                        o.connect(g); g.connect(ctx.destination); o.start(t + i * 0.05); o.stop(t + i * 0.05 + 0.22);
                     });
-                }else if(type==='konamiStandard'){
-                    [330,392,659,523,587,784].forEach((f,i)=>{
-                        const o=ctx.createOscillator(),g=ctx.createGain();
-                        o.type='square';o.frequency.setValueAtTime(f,t+i*0.07);
-                        g.gain.setValueAtTime(0.06,t+i*0.07);g.gain.exponentialRampToValueAtTime(0.001,t+i*0.07+0.09);
-                        o.connect(g);g.connect(ctx.destination);o.start(t+i*0.07);o.stop(t+i*0.07+0.09);
+                }else if(type === 'konamiStandard'){
+                    [330, 392, 659, 523, 587, 784].forEach((f, i) => {
+                        const o = ctx.createOscillator(), g = ctx.createGain();
+                        o.type = 'square'; o.frequency.setValueAtTime(f, t + i * 0.07);
+                        g.gain.setValueAtTime(0.06, t + i * 0.07); g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.07 + 0.09);
+                        o.connect(g); g.connect(ctx.destination); o.start(t + i * 0.07); o.stop(t + i * 0.07 + 0.09);
                     });
-                }else if(type==='konamiSpecial'){
-                    [587.33,659.25,880.00,987.77,1318.51].forEach((f,i)=>{
-                        const o=ctx.createOscillator(),g=ctx.createGain();
-                        o.type='sine';o.frequency.setValueAtTime(f,t+i*0.08);
-                        g.gain.setValueAtTime(0.08,t+i*0.08);g.gain.exponentialRampToValueAtTime(0.0001,t+i*0.08+0.25);
-                        o.connect(g);g.connect(ctx.destination);o.start(t+i*0.08);o.stop(t+i*0.08+0.25);
+                }else if(type === 'konamiSpecial'){
+                    [587.33, 659.25, 880.00, 987.77, 1318.51].forEach((f, i) => {
+                        const o = ctx.createOscillator(), g = ctx.createGain();
+                        o.type = 'sine'; o.frequency.setValueAtTime(f, t + i * 0.08);
+                        g.gain.setValueAtTime(0.08, t + i * 0.08); g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.08 + 0.25);
+                        o.connect(g); g.connect(ctx.destination); o.start(t + i * 0.08); o.stop(t + i * 0.08 + 0.25);
                     });
-                }else if(type==='heartExplode'){
-                    [784.00,659.25,523.25,392.00,261.63].forEach((f,i)=>{
-                        const o=ctx.createOscillator(),g=ctx.createGain();
-                        o.type='sawtooth';o.frequency.setValueAtTime(f,t+i*0.05);
-                        g.gain.setValueAtTime(0.05,t+i*0.05);g.gain.exponentialRampToValueAtTime(0.0001,t+i*0.05+0.08);
-                        o.connect(g);g.connect(ctx.destination);o.start(t+i*0.05);o.stop(t+i*0.05+0.08);
+                }else if(type === 'heartExplode'){
+                    [784.00, 659.25, 523.25, 392.00, 261.63].forEach((f, i) => {
+                        const o = ctx.createOscillator(), g = ctx.createGain();
+                        o.type = 'sawtooth'; o.frequency.setValueAtTime(f, t + i * 0.05);
+                        g.gain.setValueAtTime(0.05, t + i * 0.05); g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.05 + 0.08);
+                        o.connect(g); g.connect(ctx.destination); o.start(t + i * 0.05); o.stop(t + i * 0.05 + 0.08);
                     });
                 }
             }catch(e){}
         }
 
-        let konamiCodeEnteredBeforeFirstMessage = false;
-
-        const cv=document.getElementById('particleCanvas'),ctx=cv.getContext('2d');
-        let particles=[];
-        const maxParticles=35;
+        const cv = document.getElementById('particleCanvas'), ctx = cv.getContext('2d');
+        let particles = [];
+        const maxParticles = 35;
 
         function handleResize(){
-            cv.width=window.innerWidth;cv.height=window.innerHeight;
-            document.getElementById('trailCanvas').width=window.innerWidth;
-            document.getElementById('trailCanvas').height=window.innerHeight;
+            cv.width = window.innerWidth; cv.height = window.innerHeight;
+            document.getElementById('trailCanvas').width = window.innerWidth;
+            document.getElementById('trailCanvas').height = window.innerHeight;
         }
-        window.addEventListener('resize',handleResize);
+        window.addEventListener('resize', handleResize);
         handleResize();
 
         class Particle{
-            constructor(x,y,sx,sy,sz){
-                if(x!==undefined&&y!==undefined){
-                    this.x=x;this.y=y;this.size=sz||(Math.random()*3.5+1.2);
-                    this.speedX=sx||(Math.random()-0.5)*4;this.speedY=sy||(Math.random()-0.5)*4;
-                    this.opacity=Math.random()*0.4+0.4;this.isBurst=true;
+            constructor(x, y, sx, sy, sz){
+                if(x !== undefined && y !== undefined){
+                    this.x = x; this.y = y; this.size = sz || (Math.random() * 3.5 + 1.2);
+                    this.speedX = sx || (Math.random() - 0.5) * 4; this.speedY = sy || (Math.random() - 0.5) * 4;
+                    this.opacity = Math.random() * 0.4 + 0.4; this.isBurst = true;
                 }else{this.reset();}
             }
             reset(){
-                this.x=Math.random()*cv.width;this.y=Math.random()*cv.height;
-                this.size=Math.random()*4+1.5;this.speedY=-(Math.random()*0.4+0.2);
-                this.speedX=(Math.random()-0.5)*0.3;this.opacity=Math.random()*0.4+0.1;this.isBurst=false;
+                this.x = Math.random() * cv.width; this.y = Math.random() * cv.height;
+                this.size = Math.random() * 4 + 1.5; this.speedY = -(Math.random() * 0.4 + 0.2);
+                this.speedX = (Math.random() - 0.5) * 0.3; this.opacity = Math.random() * 0.4 + 0.1; this.isBurst = false;
             }
             update(){
                 if(this.isBurst){
-                    this.x+=this.speedX;this.y+=this.speedY;this.speedX*=0.92;this.speedY*=0.92;
-                    if(Math.abs(this.speedX)<0.1&&Math.abs(this.speedY)<0.1){
-                        this.isBurst=false;this.speedY=-(Math.random()*0.4+0.2);this.speedX=(Math.random()-0.5)*0.3;
+                    this.x += this.speedX; this.y += this.speedY; this.speedX *= 0.92; this.speedY *= 0.92;
+                    if(Math.abs(this.speedX) < 0.1 && Math.abs(this.speedY) < 0.1){
+                        this.isBurst = false; this.speedY = -(Math.random() * 0.4 + 0.2); this.speedX = (Math.random() - 0.5) * 0.3;
                     }
                 }else if(this.isCoolingDown){
-                    this.x+=this.speedX;this.y+=this.speedY;this.speedX*=0.96;this.speedY*=0.96;
-                    if(Math.abs(this.speedX)<=0.3&&Math.abs(this.speedY)<=0.5){
-                        this.isCoolingDown=false;this.speedY=-(Math.random()*0.4+0.2);this.speedX=(Math.random()-0.5)*0.3;
+                    this.x += this.speedX; this.y += this.speedY; this.speedX *= 0.96; this.speedY *= 0.96;
+                    if(Math.abs(this.speedX) <= 0.3 && Math.abs(this.speedY) <= 0.5){
+                        this.isCoolingDown = false; this.speedY = -(Math.random() * 0.4 + 0.2); this.speedX = (Math.random() - 0.5) * 0.3;
                     }
                 }else if(!this.isHeartForm){
-                    this.y+=this.speedY+scrollVel*0.2;this.x+=this.speedX;
+                    this.y += this.speedY + scrollVel * 0.2; this.x += this.speedX;
                 }
-                let dx=mouseX-this.x,dy=mouseY-this.y,dist=Math.sqrt(dx*dx+dy*dy);
+                let dx = mouseX - this.x, dy = mouseY - this.y, dist = Math.sqrt(dx * dx + dy * dy);
                 if(document.body.classList.contains('is-holding')){
-                    if(dist>5){this.x+=(dx/dist)*2.5;this.y+=(dy/dist)*2.5;}
-                }else if(dist<120){
-                    let f=1-(dist/120),a=Math.atan2(dy,dx);
-                    this.x-=Math.cos(a)*f*3;this.y-=Math.sin(a)*f*3;
+                    if(dist > 5){this.x += (dx / dist) * 2.5; this.y += (dy / dist) * 2.5;}
+                }else if(dist < 120){
+                    let f = 1 - (dist / 120), a = Math.atan2(dy, dx);
+                    this.x -= Math.cos(a) * f * 3; this.y -= Math.sin(a) * f * 3;
                 }
-                if(this.y<-10){this.y=cv.height+10;this.x=Math.random()*cv.width;}
-                if(this.y>cv.height+10){this.y=-10;this.x=Math.random()*cv.width;}
-                if(this.x<-10||this.x>cv.width+10){this.x=Math.random()*cv.width;}
+                if(this.y < -10){this.y = cv.height + 10; this.x = Math.random() * cv.width;}
+                if(this.y > cv.height + 10){this.y = -10; this.x = Math.random() * cv.width;}
+                if(this.x < -10 || this.x > cv.width + 10){this.x = Math.random() * cv.width;}
             }
             draw(){
                 ctx.beginPath();
-                if(document.body.classList.contains('bit-8-mode')||document.body.classList.contains('star-mode')){
-                    ctx.rect(this.x-this.size,this.y-this.size,this.size*2,this.size*2);
-                }else{ctx.arc(this.x,this.y,this.size,0,Math.PI*2);}
-                let isStar=document.body.classList.contains('star-mode');
+                if(document.body.classList.contains('bit-8-mode') || document.body.classList.contains('star-mode')){
+                    ctx.rect(this.x - this.size, this.y - this.size, this.size * 2, this.size * 2);
+                }else{ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);}
+                let isStar = document.body.classList.contains('star-mode');
+                let dx = mouseX - this.x, dy = mouseY - this.y, dist = Math.sqrt(dx * dx + dy * dy);
+                let nearCursor = dist < 120 && !document.body.classList.contains('is-holding');
                 if(isStar){
-                    let h=(Date.now()+this.x*2)%360;
-                    ctx.fillStyle=`hsla(${h}, 100%, 65%, ${this.opacity})`;ctx.shadowColor=`hsla(${h}, 100%, 50%, 0.9)`;
+                    let h = (Date.now() + this.x * 2) % 360;
+                    ctx.fillStyle = `hsla(${h}, 100%, 65%, ${this.opacity})`; ctx.shadowColor = `hsla(${h}, 100%, 50%, 0.9)`;
                 }else if(this.isGold){
-                    ctx.fillStyle=`rgba(255, 215, 0, ${this.opacity})`;ctx.shadowColor='rgba(255, 215, 0, 0.8)';
+                    ctx.fillStyle = `rgba(255, 215, 0, ${this.opacity})`; ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
                 }else if(this.preservedColor){
-                    ctx.fillStyle=this.preservedColor;ctx.shadowColor=this.preservedColor;
+                    ctx.fillStyle = this.preservedColor; ctx.shadowColor = this.preservedColor;
+                }else if(nearCursor){
+                    let glowAlpha = Math.min(1, this.opacity + (1 - dist / 120) * 0.6);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${glowAlpha})`;
+                    ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
+                    ctx.shadowBlur = 12;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                    return;
                 }else{
-                    ctx.fillStyle=`rgba(255, 255, 255, ${this.opacity})`;
-                    ctx.shadowColor='rgba(255, 255, 255, 0.3)';
+                    ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                    ctx.shadowColor = 'rgba(255, 255, 255, 0.3)';
                 }
-                ctx.shadowBlur=(document.body.classList.contains('bit-8-mode')||isStar)?0:8;
-                ctx.fill();ctx.shadowBlur=0;
+                ctx.shadowBlur = (document.body.classList.contains('bit-8-mode') || isStar) ? 0 : 8;
+                ctx.fill(); ctx.shadowBlur = 0;
             }
         }
 
-        for(let i=0;i<maxParticles;i++)particles.push(new Particle());
+        for(let i = 0; i < maxParticles; i++) particles.push(new Particle());
 
-        let scrollVel=0,targetScale=1,currentScale=1,targetRotate=0,currentRotate=0;
-        window.addEventListener('wheel',(e)=>{
-            scrollVel+=e.deltaY*0.15;targetScale+=e.deltaY*0.0008;targetRotate+=e.deltaY*0.015;
-            targetScale=Math.max(0.92,Math.min(1.08,targetScale));
-        },{passive:true});
+        let scrollVel = 0, targetScale = 1, currentScale = 1, targetRotate = 0, currentRotate = 0;
+        window.addEventListener('wheel', (e) => {
+            scrollVel += e.deltaY * 0.15; targetScale += e.deltaY * 0.0008; targetRotate += e.deltaY * 0.015;
+            targetScale = Math.max(0.92, Math.min(1.08, targetScale));
+        }, {passive: true});
 
-        const tcv=document.getElementById('trailCanvas'),tctx=tcv.getContext('2d');
-        let cursorHistory=[];
-        const maxHistory=26,cursorDot=document.getElementById('cursorDot'),cursorRing=document.getElementById('cursorRing'),linksBox=document.getElementById('linksBox');
-        let mouseX=window.innerWidth/2,mouseY=window.innerHeight/2,ringX=mouseX,ringY=mouseY;
+        const tcv = document.getElementById('trailCanvas'), tctx = tcv.getContext('2d');
+        let cursorHistory = [];
+        const maxHistory = 26, cursorDot = document.getElementById('cursorDot'), cursorRing = document.getElementById('cursorRing'), linksBox = document.getElementById('linksBox');
+        let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2, ringX = mouseX, ringY = mouseY;
 
-        window.addEventListener('mousemove',(e)=>{
-            mouseX=e.clientX;mouseY=e.clientY;
-            cursorDot.style.transform=`translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX; mouseY = e.clientY;
+            cursorDot.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
         });
-        let successCaptureCount=0;
-        let specialMessageActive=false;
-        let konamiUsedAfterSpecial=false;
-        let specialMessageTimer=null;
-        let timeout60Timer=null;
-        let currentSpecialTextState='initial';
+        let successCaptureCount = 0;
+        let specialMessageActive = false;
+        let konamiUsedAfterSpecial = false;
+        let specialMessageTimer = null;
+        let timeout60Timer = null;
+        let currentSpecialTextState = 'initial';
 
         function triggerSpecialIdleMessage(text){
-            if(konamiUsedAfterSpecial||konamiCodeEnteredBeforeFirstMessage)return;
-            specialMessageActive=true;
+            specialMessageActive = true;
             document.body.classList.add('idle-mode');
             clearTimeout(idleTypingTimer);
             typeIdle(text);
         }
 
         function dismissSpecialIdleMessage(){
-            if(!specialMessageActive)return;
-            specialMessageActive=false;
+            if(!specialMessageActive) return;
+            specialMessageActive = false;
             clearTimeout(specialMessageTimer);
             clearTimeout(timeout60Timer);
             document.body.classList.remove('idle-mode');
@@ -306,46 +327,44 @@
         }
 
         let holdTimer;
-        window.addEventListener('mousedown',(e)=>{
-            if(e.button!==0)return;
+        window.addEventListener('mousedown', (e) => {
+            if(e.button !== 0) return;
             playSound('click');
-            const rip=document.createElement('div');
-            rip.className='click-ripple';rip.style.left=`${e.clientX}px`;rip.style.top=`${e.clientY}px`;
-            document.body.appendChild(rip);setTimeout(()=>rip.remove(),500);
-            for(let i=0;i<24;i++){
-                let a=Math.random()*Math.PI*2,s=Math.random()*6+1.5;
-                let p=new Particle(e.clientX,e.clientY,Math.cos(a)*s,Math.sin(a)*s,Math.random()*3+1);
-                if(!document.body.classList.contains('star-mode'))p.preservedColor='rgba(255, 255, 255, 0.9)';
+            const rip = document.createElement('div');
+            rip.className = 'click-ripple'; rip.style.left = `${e.clientX}px`; rip.style.top = `${e.clientY}px`;
+            document.body.appendChild(rip); setTimeout(() => rip.remove(), 500);
+            for(let i = 0; i < 24; i++){
+                let a = Math.random() * Math.PI * 2, s = Math.random() * 6 + 1.5;
+                let p = new Particle(e.clientX, e.clientY, Math.cos(a) * s, Math.sin(a) * s, Math.random() * 3 + 1);
+                if(!document.body.classList.contains('star-mode')) p.preservedColor = 'rgba(255, 255, 255, 0.9)';
                 particles.push(p);
             }
-            holdTimer=setTimeout(()=>{document.body.classList.add('is-holding');playSound('holdStart');},150);
+            holdTimer = setTimeout(() => {document.body.classList.add('is-holding'); playSound('holdStart');}, 150);
         });
 
-        window.addEventListener('mouseup',()=>{
+        window.addEventListener('mouseup', () => {
             clearTimeout(holdTimer);
             if(document.body.classList.contains('is-holding')){
-                let cap=0;
-                particles.forEach(p=>{if(Math.sqrt((ringX-p.x)**2+(ringY-p.y)**2)<=37)cap++;});
-                if(cap>0){
-                    playSound(cap>=particles.length?'allCaptured':'release');
-                    
-                    if(cap>=particles.length&&!konamiUsedAfterSpecial&&currentSpecialTextState==='initial'){
+                let cap = 0;
+                particles.forEach(p => {if(Math.sqrt((ringX - p.x) ** 2 + (ringY - p.y) ** 2) <= 37) cap++;});
+                if(cap > 0){
+                    playSound(cap >= particles.length ? 'allCaptured' : 'release');
+                    if(cap >= particles.length && !konamiUsedAfterSpecial && currentSpecialTextState === 'initial'){
                         successCaptureCount++;
-                        if(successCaptureCount>=10){
-                            currentSpecialTextState='konami';
+                        if(successCaptureCount >= 10){
+                            currentSpecialTextState = 'konami';
                             triggerSpecialIdleMessage("weißt du eigentlich was kleine welle auf japanisch heißt?");
-                            
-                            timeout60Timer=setTimeout(()=>{
-                                if(specialMessageActive&&currentSpecialTextState==='konami'&&!konamiUsedAfterSpecial){
-                                    currentSpecialTextState='konami-waiting';
+                            timeout60Timer = setTimeout(() => {
+                                if(specialMessageActive && currentSpecialTextState === 'konami' && !konamiUsedAfterSpecial){
+                                    currentSpecialTextState = 'konami-waiting';
                                     clearTimeout(idleTypingTimer);
-                                    deleteIdle(()=>{
-                                        if(specialMessageActive&&!konamiUsedAfterSpecial){
+                                    deleteIdle(() => {
+                                        if(specialMessageActive && !konamiUsedAfterSpecial){
                                             typeIdle("...konami");
                                         }
                                     });
                                 }
-                            },15000);
+                            }, TIMING_SPECIAL_TIMEOUT);
                         }
                     }
                 }
@@ -353,215 +372,210 @@
             document.body.classList.remove('is-holding');
         });
 
-        const konamiSeq=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','KeyB','KeyA'];
-        let konamiIdx=0,konamiStg=0,starTimer,heartTimer;
+        const konamiSeq = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
+        let konamiIdx = 0, konamiStg = 0, starTimer, heartTimer;
 
-        window.addEventListener('keydown',(e)=>{
-            if(e.code===konamiSeq[konamiIdx]){
+        window.addEventListener('keydown', (e) => {
+            if(e.code === konamiSeq[konamiIdx]){
                 konamiIdx++;
-                if(konamiIdx===konamiSeq.length){
-                    if(!specialMessageActive && currentSpecialTextState === 'initial') {
-                        konamiCodeEnteredBeforeFirstMessage = true;
-                    }
-
-                    if(specialMessageActive&&!konamiUsedAfterSpecial){
-                        konamiUsedAfterSpecial=true;
+                if(konamiIdx === konamiSeq.length){
+                    if(specialMessageActive && !konamiUsedAfterSpecial){
+                        konamiUsedAfterSpecial = true;
                         dismissSpecialIdleMessage();
                     }
-
                     if(document.body.classList.contains('star-mode')){
                         playSound('konamiSpecial');
-                        clearTimeout(starTimer);clearTimeout(heartTimer);
+                        clearTimeout(starTimer); clearTimeout(heartTimer);
                         triggerZeldaHearts(false);
                     }else{
-                        konamiStg=(konamiStg+1)%4;
-                        clearTimeout(starTimer);clearTimeout(heartTimer);
+                        konamiStg = (konamiStg + 1) % 4;
+                        clearTimeout(starTimer); clearTimeout(heartTimer);
                         document.body.classList.remove('star-mode');
-                        if(konamiStg===1){playSound('konamiStandard');triggerZeldaHearts(false);}
-                        else if(konamiStg===2){playSound('konamiStandard');triggerZeldaHearts(true);}
-                        else if(konamiStg===3){
+                        if(konamiStg === 1){playSound('konamiStandard'); triggerZeldaHearts(false);}
+                        else if(konamiStg === 2){playSound('konamiStandard'); triggerZeldaHearts(true);}
+                        else if(konamiStg === 3){
                             playSound('konamiSpecial');
-                            document.body.classList.add('bit-8-mode','star-mode');
+                            document.body.classList.add('bit-8-mode', 'star-mode');
                             triggerZeldaHearts(false);
-                        }else{playSound('konamiStandard');triggerZeldaHearts(false);}
+                        }else{playSound('konamiStandard'); triggerZeldaHearts(false);}
                     }
-                    konamiIdx=0;
+                    konamiIdx = 0;
                 }
-            }else{konamiIdx=0;}
+            }else{konamiIdx = 0;}
         });
 
-        const heartMatrix=[
-            [0,1,1,0,0,1,1,0],
-            [1,1,1,1,1,1,1,1],
-            [1,1,1,1,1,1,1,1],
-            [1,1,1,1,1,1,1,1],
-            [0,1,1,1,1,1,1,0],
-            [0,0,1,1,1,1,0,0],
-            [0,0,0,1,1,0,0,0]
+        const heartMatrix = [
+            [0, 1, 1, 0, 0, 1, 1, 0],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [0, 1, 1, 1, 1, 1, 1, 0],
+            [0, 0, 1, 1, 1, 1, 0, 0],
+            [0, 0, 0, 1, 1, 0, 0, 0]
         ];
 
         function triggerZeldaHearts(isGold){
-            particles=[];
-            let cx=window.innerWidth/2,cy=linksBox.getBoundingClientRect().bottom+65;
-            [-130,0,130].forEach((ox,hi)=>{
-                let rows=heartMatrix.length,cols=heartMatrix[0].length,sx=cx+ox-(cols*10)/2,sy=cy-(rows*10)/2;
-                for(let r=0;r<rows;r++){
-                    for(let c=0;c<cols;c++){
-                        if(heartMatrix[r][c]===1){
-                            let p=new Particle(Math.random()*window.innerWidth,Math.random()*window.innerHeight,0,0,4.5);
-                            p.targetX=sx+c*10+5;p.targetY=sy+r*10+5;p.isHeartForm=true;p.isBurst=false;p.isCoolingDown=false;p.isGold=isGold;
-                            p.preservedColor=konamiStg===1?'rgba(255, 255, 255, 0.95)':!isGold?`hsla(${(hi*120)%360}, 100%, 65%, 0.95)`:'rgba(255, 215, 0, 0.95)';
-                            p.opacity=0.95;particles.push(p);
+            particles = [];
+            let cx = window.innerWidth / 2, cy = linksBox.getBoundingClientRect().bottom + 65;
+            [-130, 0, 130].forEach((ox, hi) => {
+                let rows = heartMatrix.length, cols = heartMatrix[0].length, sx = cx + ox - (cols * 10) / 2, sy = cy - (rows * 10) / 2;
+                for(let r = 0; r < rows; r++){
+                    for(let c = 0; c < cols; c++){
+                        if(heartMatrix[r][c] === 1){
+                            let p = new Particle(Math.random() * window.innerWidth, Math.random() * window.innerHeight, 0, 0, 4.5);
+                            p.targetX = sx + c * 10 + 5; p.targetY = sy + r * 10 + 5; p.isHeartForm = true; p.isBurst = false; p.isCoolingDown = false; p.isGold = isGold;
+                            p.preservedColor = konamiStg === 1 ? 'rgba(255, 255, 255, 0.95)' : !isGold ? `hsla(${(hi * 120) % 360}, 100%, 65%, 0.95)` : 'rgba(255, 215, 0, 0.95)';
+                            p.opacity = 0.95; particles.push(p);
                         }
                     }
                 }
             });
-            heartTimer=setTimeout(()=>{
-                playSound('heartExplode');document.body.classList.remove('star-mode','bit-8-mode');konamiStg=0;
-                particles.forEach(p=>{
+            heartTimer = setTimeout(() => {
+                playSound('heartExplode'); document.body.classList.remove('star-mode', 'bit-8-mode'); konamiStg = 0;
+                particles.forEach(p => {
                     if(p.isHeartForm){
-                        p.isHeartForm=false;let a=Math.random()*Math.PI*2,s=Math.random()*14+8;
-                        p.speedX=Math.cos(a)*s;p.speedY=Math.sin(a)*s;p.isCoolingDown=true;
+                        p.isHeartForm = false; let a = Math.random() * Math.PI * 2, s = Math.random() * 14 + 8;
+                        p.speedX = Math.cos(a) * s; p.speedY = Math.sin(a) * s; p.isCoolingDown = true;
                     }
                 });
-            },4000);
+            }, 4000);
         }
 
         function renderLoop(){
-            scrollVel*=0.88;targetScale+=(1-targetScale)*0.1;targetRotate*=0.88;
-            currentScale+=(targetScale-currentScale)*0.15;currentRotate+=(targetRotate-currentRotate)*0.15;
-            linksBox.style.transform=`scale(${currentScale}) rotate(${currentRotate}deg)`;
-            let blur=Math.abs(scrollVel)*0.15;linksBox.style.filter=blur>0.5?`blur(${Math.min(blur,4)}px)`:'none';
+            scrollVel *= 0.88; targetScale += (1 - targetScale) * 0.1; targetRotate *= 0.88;
+            currentScale += (targetScale - currentScale) * 0.15; currentRotate += (targetRotate - currentRotate) * 0.15;
+            linksBox.style.transform = `scale(${currentScale}) rotate(${currentRotate}deg)`;
+            let blur = Math.abs(scrollVel) * 0.15; linksBox.style.filter = blur > 0.5 ? `blur(${Math.min(blur, 4)}px)` : 'none';
 
-            let vx=(mouseX-ringX)*0.22,vy=(mouseY-ringY)*0.22;ringX+=vx;ringY+=vy;
-            let curVel=Math.sqrt(vx*vx+vy*vy),str=Math.min(curVel*0.04,0.5),ang=Math.atan2(vy,vx),sp=Math.abs(scrollVel)*0.05;
+            let vx = (mouseX - ringX) * 0.22, vy = (mouseY - ringY) * 0.22; ringX += vx; ringY += vy;
+            let curVel = Math.sqrt(vx * vx + vy * vy), str = Math.min(curVel * 0.04, 0.5), ang = Math.atan2(vy, vx), sp = Math.abs(scrollVel) * 0.05;
 
             if(!document.body.classList.contains('is-holding')){
-                cursorRing.style.transform=`translate(${ringX}px, ${ringY}px) translate(-50%, -50%) rotate(${ang}rad) scale(${1+str+sp}, ${1-str+sp})`;
+                cursorRing.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%, -50%) rotate(${ang}rad) scale(${1 + str + sp}, ${1 - str + sp})`;
             }else{
-                cursorRing.style.transform=`translate(${ringX}px, ${ringY}px) translate(-50%, -50%)`;
+                cursorRing.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%, -50%)`;
             }
 
-            if(document.body.classList.contains('is-holding')&&particles.length>0){
-                let allIn=true;
-                for(let i=0;i<particles.length;i++){
-                    if(Math.sqrt((ringX-particles[i].x)**2+(ringY-particles[i].y)**2)>37){allIn=false;break;}
+            if(document.body.classList.contains('is-holding') && particles.length > 0){
+                let allIn = true;
+                for(let i = 0; i < particles.length; i++){
+                    if(Math.sqrt((ringX - particles[i].x) ** 2 + (ringY - particles[i].y) ** 2) > 37){allIn = false; break;}
                 }
-                document.body.classList.toggle('all-contained',allIn);
+                document.body.classList.toggle('all-contained', allIn);
             }else{document.body.classList.remove('all-contained');}
 
-            cursorHistory.push({x:ringX,y:ringY});
-            if(cursorHistory.length>maxHistory)cursorHistory.shift();
+            cursorHistory.push({x: ringX, y: ringY});
+            if(cursorHistory.length > maxHistory) cursorHistory.shift();
 
-            ctx.clearRect(0,0,cv.width,cv.height);
-            particles.forEach(p=>{
-                if(p.isHeartForm){p.x+=(p.targetX-p.x)*0.025;p.y+=(p.targetY-p.y)*0.025;}
-                p.update();p.draw();
+            ctx.clearRect(0, 0, cv.width, cv.height);
+            particles.forEach(p => {
+                if(p.isHeartForm){p.x += (p.targetX - p.x) * 0.025; p.y += (p.targetY - p.y) * 0.025;}
+                p.update(); p.draw();
             });
 
-            tctx.clearRect(0,0,tcv.width,tcv.height);
-            if(cursorHistory.length>1){
-                tctx.beginPath();tctx.moveTo(cursorHistory[0].x,cursorHistory[0].y);
-                for(let i=1;i<cursorHistory.length;i++)tctx.lineTo(cursorHistory[i].x,cursorHistory[i].y);
-                let isStar=document.body.classList.contains('star-mode');
-                let grad=tctx.createLinearGradient(cursorHistory[0].x,cursorHistory[0].y,ringX,ringY);
+            tctx.clearRect(0, 0, tcv.width, tcv.height);
+            if(cursorHistory.length > 1){
+                tctx.beginPath(); tctx.moveTo(cursorHistory[0].x, cursorHistory[0].y);
+                for(let i = 1; i < cursorHistory.length; i++) tctx.lineTo(cursorHistory[i].x, cursorHistory[i].y);
+                let isStar = document.body.classList.contains('star-mode');
+                let grad = tctx.createLinearGradient(cursorHistory[0].x, cursorHistory[0].y, ringX, ringY);
                 if(isStar){
-                    let h=Date.now()%360;
-                    grad.addColorStop(0,`hsla(${h}, 100%, 50%, 0)`);
-                    grad.addColorStop(0.5,`hsla(${(h+60)%360}, 100%, 50%, 0.5)`);
-                    grad.addColorStop(1,`hsla(${(h+120)%360}, 100%, 50%, 0.9)`);
+                    let h = Date.now() % 360;
+                    grad.addColorStop(0, `hsla(${h}, 100%, 50%, 0)`);
+                    grad.addColorStop(0.5, `hsla(${(h + 60) % 360}, 100%, 50%, 0.5)`);
+                    grad.addColorStop(1, `hsla(${(h + 120) % 360}, 100%, 50%, 0.9)`);
                 }else{
-                    grad.addColorStop(0,'rgba(255, 255, 255, 0)');
-                    grad.addColorStop(0.5,'rgba(255, 255, 255, 0.15)');
-                    grad.addColorStop(1,'rgba(255, 255, 255, 0.65)');
+                    grad.addColorStop(0, 'rgba(255, 255, 255, 0)');
+                    grad.addColorStop(0.5, 'rgba(255, 255, 255, 0.15)');
+                    grad.addColorStop(1, 'rgba(255, 255, 255, 0.65)');
                 }
-                tctx.strokeStyle=grad;tctx.lineWidth=Math.max(4,48-(cursorHistory.length*1.5)+Math.abs(scrollVel));
-                tctx.lineCap=(document.body.classList.contains('bit-8-mode')||isStar)?'butt':'round';
-                tctx.lineJoin=(document.body.classList.contains('bit-8-mode')||isStar)?'miter':'round';
-                tctx.shadowBlur=(document.body.classList.contains('bit-8-mode')||isStar)?0:18;
-                tctx.shadowColor='rgba(255, 255, 255, 0.5)';
-                tctx.stroke();tctx.shadowBlur=0;
+                tctx.strokeStyle = grad; tctx.lineWidth = Math.max(4, 48 - (cursorHistory.length * 1.5) + Math.abs(scrollVel));
+                tctx.lineCap = (document.body.classList.contains('bit-8-mode') || isStar) ? 'butt' : 'round';
+                tctx.lineJoin = (document.body.classList.contains('bit-8-mode') || isStar) ? 'miter' : 'round';
+                tctx.shadowBlur = (document.body.classList.contains('bit-8-mode') || isStar) ? 0 : 18;
+                tctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
+                tctx.stroke(); tctx.shadowBlur = 0;
             }
             requestAnimationFrame(renderLoop);
         }
         renderLoop();
 
-        document.querySelectorAll('.icon-link').forEach(l=>{
-            l.addEventListener('mouseenter',()=>{
+        document.querySelectorAll('.icon-link').forEach(l => {
+            l.addEventListener('mouseenter', () => {
                 document.body.classList.add('hovering');
                 playSound('hover');
             });
-            l.addEventListener('mouseleave',()=>document.body.classList.remove('hovering'));
+            l.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
         });
 
-        const presets=[
-            {g:"linear-gradient(-45deg, #090e17, #150917, #1f0b18, #130e21, #0a171c, #071217)",a:"lavaGradient1 32s ease infinite"},
-            {g:"linear-gradient(135deg, #021a10, #052e16, #022c22, #01120c, #091c14)",a:"lavaGradient2 28s ease infinite"},
-            {g:"linear-gradient(45deg, #12081c, #240a1d, #1a0f2b, #0c0817, #1a0711)",a:"lavaGradient3 35s ease infinite"},
-            {g:"linear-gradient(-135deg, #07141a, #0d1e26, #161026, #1f0d1e, #0d0914)",a:"lavaGradient4 30s ease infinite"},
-            {g:"linear-gradient(60deg, #020c14, #081d1c, #140d24, #210815, #0a1212)",a:"lavaGradient1 26s ease infinite"},
-            {g:"linear-gradient(-60deg, #17070e, #260d1b, #190a26, #09121a, #04100c)",a:"lavaGradient2 34s ease infinite"},
-            {g:"linear-gradient(90deg, #0a1412, #18091a, #290e1b, #121029, #050b12)",a:"lavaGradient3 38s ease infinite"},
-            {g:"linear-gradient(0deg, #070b14, #120917, #1f0e1c, #0e1c17, #03080d)",a:"lavaGradient4 29s ease infinite"},
-            {g:"linear-gradient(-30deg, #0f0817, #1c0d12, #0a1a14, #120f26, #06090f)",a:"lavaGradient1 31s ease infinite"},
-            {g:"linear-gradient(120deg, #051412, #10081c, #260b14, #0b1721, #080c12)",a:"lavaGradient2 33s ease infinite"}
+        const presets = [
+            {g: "linear-gradient(-45deg, #090e17, #150917, #1f0b18, #130e21, #0a171c, #071217)", a: "lavaGradient1 32s ease infinite"},
+            {g: "linear-gradient(135deg, #021a10, #052e16, #022c22, #01120c, #091c14)", a: "lavaGradient2 28s ease infinite"},
+            {g: "linear-gradient(45deg, #12081c, #240a1d, #1a0f2b, #0c0817, #1a0711)", a: "lavaGradient3 35s ease infinite"},
+            {g: "linear-gradient(-135deg, #07141a, #0d1e26, #161026, #1f0d1e, #0d0914)", a: "lavaGradient4 30s ease infinite"},
+            {g: "linear-gradient(60deg, #020c14, #081d1c, #140d24, #210815, #0a1212)", a: "lavaGradient1 26s ease infinite"},
+            {g: "linear-gradient(-60deg, #17070e, #260d1b, #190a26, #09121a, #04100c)", a: "lavaGradient2 34s ease infinite"},
+            {g: "linear-gradient(90deg, #0a1412, #18091a, #290e1b, #121029, #050b12)", a: "lavaGradient3 38s ease infinite"},
+            {g: "linear-gradient(0deg, #070b14, #120917, #1f0e1c, #0e1c17, #03080d)", a: "lavaGradient4 29s ease infinite"},
+            {g: "linear-gradient(-30deg, #0f0817, #1c0d12, #0a1a14, #120f26, #06090f)", a: "lavaGradient1 31s ease infinite"},
+            {g: "linear-gradient(120deg, #051412, #10081c, #260b14, #0b1721, #080c12)", a: "lavaGradient2 33s ease infinite"}
         ];
-        const pr=presets[Math.floor(Math.random()*presets.length)];
-        document.body.style.background=pr.g;document.body.style.backgroundSize="500% 500%";document.body.style.animation=pr.a;
+        const pr = presets[Math.floor(Math.random() * presets.length)];
+        document.body.style.background = pr.g; document.body.style.backgroundSize = "500% 500%"; document.body.style.animation = pr.a;
 
-        let showCur=true,isTypedDone=false,charIdx=0;
+        let showCur = true, isTypedDone = false, charIdx = 0;
         function getFullStr(){
-            let now=new Date();
-            return `[${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}] martin@nartim:~$ `;
+            let now = new Date();
+            return `[${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}] martin@nartim:~$ `;
         }
-        let fullStr=getFullStr();
+        let fullStr = getFullStr();
         function typeTerm(){
-            fullStr=getFullStr();
-            if(charIdx<=fullStr.length){
-                document.title=fullStr.slice(0,charIdx)+(showCur?"_":" ");
-                charIdx++;setTimeout(typeTerm,80);
-            }else{isTypedDone=true;}
+            fullStr = getFullStr();
+            if(charIdx <= fullStr.length){
+                document.title = fullStr.slice(0, charIdx) + (showCur ? "_" : " ");
+                charIdx++; setTimeout(typeTerm, TIMING_TITLE_SPEED);
+            }else{isTypedDone = true;}
         }
-        setTimeout(typeTerm,300);
-        setInterval(()=>{
-            showCur=!showCur;
-            if(isTypedDone)document.title=getFullStr()+(showCur?"_":" ");
-        },1000);
+        setTimeout(typeTerm, 300);
+        setInterval(() => {
+            showCur = !showCur;
+            if(isTypedDone) document.title = getFullStr() + (showCur ? "_" : " ");
+        }, 1000);
 
-        let idleTimer,idleActive=false,idleTypingTimer;
-        const idleMsg=document.getElementById('idleMessage'),idleTxt=document.getElementById('idleText');
-        function typeIdle(txt,i=0){
-            if(i===0)idleTxt.textContent='';
-            if(i<txt.length){
-                idleTxt.textContent+=txt.charAt(i);
-                idleTypingTimer=setTimeout(()=>typeIdle(txt,i+1),70);
+        let idleTimer, idleActive = false, idleTypingTimer;
+        const idleMsg = document.getElementById('idleMessage'), idleTxt = document.getElementById('idleText');
+        function typeIdle(txt, i = 0){
+            if(i === 0) idleTxt.textContent = '';
+            if(i < txt.length){
+                idleTxt.textContent += txt.charAt(i);
+                idleTypingTimer = setTimeout(() => typeIdle(txt, i + 1), TIMING_TYPE_SPEED);
             }
         }
         function deleteIdle(callback){
-            let currentText=idleTxt.textContent;
-            if(currentText.length>0){
-                idleTxt.textContent=currentText.slice(0,-1);
-                idleTypingTimer=setTimeout(()=>deleteIdle(callback),40);
+            let currentText = idleTxt.textContent;
+            if(currentText.length > 0){
+                idleTxt.textContent = currentText.slice(0, -1);
+                idleTypingTimer = setTimeout(() => deleteIdle(callback), TIMING_DELETE_SPEED);
             }else if(callback){
                 callback();
             }
         }
         function enterIdle(){
-            if(specialMessageActive||konamiCodeEnteredBeforeFirstMessage)return;
-            idleActive=true;document.body.classList.add('idle-mode');
-            clearTimeout(idleTypingTimer);typeIdle('bist du noch da?');
+            if(specialMessageActive) return;
+            idleActive = true; document.body.classList.add('idle-mode');
+            clearTimeout(idleTypingTimer); typeIdle('bist du noch da?');
         }
         function leaveIdle(){
-            if(!idleActive||specialMessageActive)return;
-            idleActive=false;clearTimeout(idleTypingTimer);document.body.classList.remove('idle-mode');
+            if(!idleActive || specialMessageActive) return;
+            idleActive = false; clearTimeout(idleTypingTimer); document.body.classList.remove('idle-mode');
         }
         function resetIdle(){
-            if(specialMessageActive)return;
-            clearTimeout(idleTimer);clearTimeout(idleTypingTimer);
-            if(idleActive)leaveIdle();
-            idleTimer=setTimeout(()=>enterIdle(),40000);
+            if(specialMessageActive) return;
+            clearTimeout(idleTimer); clearTimeout(idleTypingTimer);
+            if(idleActive) leaveIdle();
+            idleTimer = setTimeout(() => enterIdle(), TIMING_IDLE_DELAY);
         }
-        ['mousemove','mousedown','keydown','touchstart','wheel','scroll'].forEach(ev=>window.addEventListener(ev,resetIdle,{passive:true}));
+        ['mousemove', 'mousedown', 'keydown', 'touchstart', 'wheel', 'scroll'].forEach(ev => window.addEventListener(ev, resetIdle, {passive: true}));
         resetIdle();
     </script>
 </body>

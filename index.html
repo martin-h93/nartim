@@ -49,11 +49,6 @@
         .icon-link:hover .icon-wrapper{transform:scale(1.25);}
         .icon-link:hover .icon-default{display:none;}
         .icon-link:hover .icon-hover{display:block;}
-        .battery-widget{position:relative;z-index:2;display:none;align-items:center;gap:10px;background:rgba(0,0,0,0.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.08);padding:10px 18px;border-radius:14px;color:rgba(255,255,255,0.85);font-size:13px;letter-spacing:0.5px;box-shadow:0 8px 24px rgba(0,0,0,0.5);}
-        .battery-icon-container{position:relative;width:26px;height:13px;border:1.5px solid rgba(255,255,255,0.8);border-radius:3px;padding:1.5px;display:flex;align-items:center;}
-        .battery-icon-container::after{content:'';position:absolute;right:-4px;top:3.5px;width:2px;height:4px;background:rgba(255,255,255,0.8);border-radius:0 1px 1px 0;}
-        .battery-level-fill{height:100%;background:rgba(255,255,255,0.9);border-radius:1px;width:0%;transition:width 0.3s ease;}
-        .battery-widget.charging .battery-level-fill{background:#4ade80;box-shadow:0 0 8px rgba(74,222,128,0.6);}
         .idle-message{position:fixed;left:50%;bottom:34px;transform:translateX(-50%) translateY(25px);z-index:9997;padding:24px 34px;color:rgba(210,190,255,0.95);background:rgba(10,5,20,0.82);border:1px solid rgba(180,120,255,0.25);font-family:monospace,monospace;font-size:20px;letter-spacing:0.8px;opacity:0;pointer-events:none;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 0 40px rgba(100,50,180,0.2),inset 0 0 25px rgba(100,50,180,0.08);transition:opacity 0.8s ease,transform 0.8s cubic-bezier(0.16,1,0.3,1),background 1s ease,color 1s ease;}
         .idle-prompt{color:rgba(255,255,255,0.35);margin-right:8px;}
         .idle-cursor{margin-left:3px;animation:idleBlink 1s steps(1) infinite;}
@@ -122,13 +117,6 @@
                 <img src="./spotify2.png" alt="" class="icon-hover">
             </div>
         </a>
-    </div>
-
-    <div class="battery-widget" id="batteryWidget">
-        <div class="battery-icon-container">
-            <div class="battery-level-fill" id="batteryFill"></div>
-        </div>
-        <span id="batteryText">--%</span>
     </div>
 
     <div class="idle-message" id="idleMessage">
@@ -200,6 +188,8 @@
                 }
             }catch(e){}
         }
+
+        let konamiCodeEnteredBeforeFirstMessage = false;
 
         const cv=document.getElementById('particleCanvas'),ctx=cv.getContext('2d');
         let particles=[];
@@ -298,7 +288,7 @@
         let currentSpecialTextState='initial';
 
         function triggerSpecialIdleMessage(text){
-            if(konamiUsedAfterSpecial)return;
+            if(konamiUsedAfterSpecial||konamiCodeEnteredBeforeFirstMessage)return;
             specialMessageActive=true;
             document.body.classList.add('idle-mode');
             clearTimeout(idleTypingTimer);
@@ -370,6 +360,10 @@
             if(e.code===konamiSeq[konamiIdx]){
                 konamiIdx++;
                 if(konamiIdx===konamiSeq.length){
+                    if(!specialMessageActive && currentSpecialTextState === 'initial') {
+                        konamiCodeEnteredBeforeFirstMessage = true;
+                    }
+
                     if(specialMessageActive&&!konamiUsedAfterSpecial){
                         konamiUsedAfterSpecial=true;
                         dismissSpecialIdleMessage();
@@ -534,19 +528,6 @@
             if(isTypedDone)document.title=getFullStr()+(showCur?"_":" ");
         },1000);
 
-        if('getBattery' in navigator){
-            navigator.getBattery().then(bm=>{
-                const w=document.getElementById('batteryWidget'),f=document.getElementById('batteryFill'),txt=document.getElementById('batteryText');
-                function upd(){
-                    let lvl=Math.round(bm.level*100);
-                    f.style.width=lvl+'%';txt.textContent=lvl+'%';
-                    w.classList.toggle('charging',bm.charging);
-                    w.style.display='flex';
-                }
-                upd();bm.addEventListener('levelchange',upd);bm.addEventListener('chargingchange',upd);
-            }).catch(()=>{});
-        }
-
         let idleTimer,idleActive=false,idleTypingTimer;
         const idleMsg=document.getElementById('idleMessage'),idleTxt=document.getElementById('idleText');
         function typeIdle(txt,i=0){
@@ -566,7 +547,7 @@
             }
         }
         function enterIdle(){
-            if(specialMessageActive)return;
+            if(specialMessageActive||konamiCodeEnteredBeforeFirstMessage)return;
             idleActive=true;document.body.classList.add('idle-mode');
             clearTimeout(idleTypingTimer);typeIdle('bist du noch da?');
         }

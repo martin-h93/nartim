@@ -305,11 +305,13 @@
         let successCaptureCount = 0;
         let specialMessageActive = false;
         let konamiUsedAfterSpecial = false;
+        let konamiEverUsed = false;
         let specialMessageTimer = null;
         let timeout60Timer = null;
         let currentSpecialTextState = 'initial';
 
         function triggerSpecialIdleMessage(text){
+            if(konamiEverUsed) return;
             specialMessageActive = true;
             document.body.classList.add('idle-mode');
             clearTimeout(idleTypingTimer);
@@ -349,17 +351,17 @@
                 particles.forEach(p => {if(Math.sqrt((ringX - p.x) ** 2 + (ringY - p.y) ** 2) <= 37) cap++;});
                 if(cap > 0){
                     playSound(cap >= particles.length ? 'allCaptured' : 'release');
-                    if(cap >= particles.length && !konamiUsedAfterSpecial && currentSpecialTextState === 'initial'){
+                    if(cap >= particles.length && !konamiUsedAfterSpecial && currentSpecialTextState === 'initial' && !konamiEverUsed){
                         successCaptureCount++;
                         if(successCaptureCount >= 10){
                             currentSpecialTextState = 'konami';
                             triggerSpecialIdleMessage("weißt du eigentlich was kleine welle auf japanisch heißt?");
                             timeout60Timer = setTimeout(() => {
-                                if(specialMessageActive && currentSpecialTextState === 'konami' && !konamiUsedAfterSpecial){
+                                if(specialMessageActive && currentSpecialTextState === 'konami' && !konamiUsedAfterSpecial && !konamiEverUsed){
                                     currentSpecialTextState = 'konami-waiting';
                                     clearTimeout(idleTypingTimer);
                                     deleteIdle(() => {
-                                        if(specialMessageActive && !konamiUsedAfterSpecial){
+                                        if(specialMessageActive && !konamiUsedAfterSpecial && !konamiEverUsed){
                                             typeIdle("...konami");
                                         }
                                     });
@@ -379,7 +381,8 @@
             if(e.code === konamiSeq[konamiIdx]){
                 konamiIdx++;
                 if(konamiIdx === konamiSeq.length){
-                    if(specialMessageActive && !konamiUsedAfterSpecial){
+                    konamiEverUsed = true;
+                    if(specialMessageActive){
                         konamiUsedAfterSpecial = true;
                         dismissSpecialIdleMessage();
                     }
@@ -545,6 +548,7 @@
         let idleTimer, idleActive = false, idleTypingTimer;
         const idleMsg = document.getElementById('idleMessage'), idleTxt = document.getElementById('idleText');
         function typeIdle(txt, i = 0){
+            if(konamiEverUsed) return;
             if(i === 0) idleTxt.textContent = '';
             if(i < txt.length){
                 idleTxt.textContent += txt.charAt(i);
@@ -552,6 +556,7 @@
             }
         }
         function deleteIdle(callback){
+            if(konamiEverUsed) return;
             let currentText = idleTxt.textContent;
             if(currentText.length > 0){
                 idleTxt.textContent = currentText.slice(0, -1);
@@ -561,7 +566,7 @@
             }
         }
         function enterIdle(){
-            if(specialMessageActive) return;
+            if(specialMessageActive || konamiEverUsed) return;
             idleActive = true; document.body.classList.add('idle-mode');
             clearTimeout(idleTypingTimer); typeIdle('bist du noch da?');
         }
@@ -570,7 +575,7 @@
             idleActive = false; clearTimeout(idleTypingTimer); document.body.classList.remove('idle-mode');
         }
         function resetIdle(){
-            if(specialMessageActive) return;
+            if(specialMessageActive || konamiEverUsed) return;
             clearTimeout(idleTimer); clearTimeout(idleTypingTimer);
             if(idleActive) leaveIdle();
             idleTimer = setTimeout(() => enterIdle(), TIMING_IDLE_DELAY);
